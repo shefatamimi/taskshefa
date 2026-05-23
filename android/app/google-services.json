@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "621838493209",
+    "project_id": "taskshefa",
+    "storage_bucket": "taskshefa.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:621838493209:android:05f9a50b12ebf21ab66c88",
+        "android_client_info": {
+          "package_name": "com.example.task_shefa"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB_3PYcyBhg2FTXthUcxzVrJKq13BNaJr8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
