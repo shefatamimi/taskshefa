@@ -18,6 +18,14 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
         SingleChildScrollView(
           child: Column(
             children: [
+              CircleAvatar(
+                radius: 70,
+                child: Icon(
+                  Icons.drive_file_rename_outline,
+                  size: 70,
+                )
+              ),
+
               TextFormField(
                 decoration: InputDecoration(
                   labelText: 'Title',
