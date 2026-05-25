@@ -60,33 +60,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 child: Text('Save'),
               ),
               SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle delete button press
-                },
-                child: Text('Delete'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle cancel button press
-                },
-                child: Text('Cancel'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle complete button press
-                },
-                child: Text('Complete'),
-              ),
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle incomplete button press
-                },
-                child: Text('Incomplete'),
-              ),
+
             ]
 
         ),
