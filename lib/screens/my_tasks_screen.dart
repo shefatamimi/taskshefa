@@ -22,6 +22,83 @@ class _MyTasksState extends State<MyTasks> {
   late String userId;
   late Stream<List<TaskModel>> taskStream;
 
+  final color_completed = Colors.grey;
+
+  void changeStatus(TaskModel task) {
+    final updatedTask = TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      isCompleted: !task.isCompleted,
+      userId: task.userId,
+      alert: task.alert,
+
+    );
+    taskService.updateTask(task.id!, updatedTask);
+    }
+
+  void updateTask(TaskModel task) {
+    taskService.updateTask(task.id!, task);
+    setState(() {
+      taskStream = taskService.getTasks(userId);
+      if (task.isCompleted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task Completed'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Task Not Completed'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
+
+  }
+  void deleteTask(TaskModel task) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Delete Task'),
+          content: const Text('Are you sure you want to delete this task?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                taskService.deleteTask(task.id!);
+                setState(() {
+                  taskStream = taskService.getTasks(userId);
+                });
+                Navigator.pop(context);
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        ),
+    );
+
+    setState(() {
+      taskStream = taskService.getTasks(userId);
+    });
+
+  }
+
+
+
+
+
+
+
+
   @override
   void initState() {
     super.initState();
@@ -123,6 +200,43 @@ class _MyTasksState extends State<MyTasks> {
                           ),
 
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                        IconButton(
+                          onPressed: () {
+                            changeStatus(task);
+                            updateTask(task);
+
+                          },
+
+                          icon: Icon(
+                            task.isCompleted
+                                ? Icons.check_circle
+                                : Icons.check_circle_outline,
+
+                            color:
+                            task.isCompleted
+                                ? Colors.green
+                                : Colors.grey,
+
+                            size: 30,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete),
+                          onPressed: () {
+                            deleteTask(task);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Task Deleted'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    )
                       ],
                     );
                   },

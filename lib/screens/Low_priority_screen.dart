@@ -32,6 +32,26 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
       userModel = user;
     });
   }
+  Future<void> changestatues(TaskModel task) async {
+    final updatedTask = TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      isCompleted: !task.isCompleted,
+        userId: task.userId,
+      alert: task.alert,
+    );
+    await taskService.updateTask(task.id!, updatedTask);
+  }
+  Future<void> deleteTask(String taskId) async {
+    await taskService.deleteTask(taskId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Task deleted successfully')),
+    );
+    Navigator.pop(context);
+  }
 
   @override
   void initState() {
@@ -130,6 +150,28 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
                           ),
 
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(onPressed: (){
+                              changestatues(task);
+                            }, icon: Icon(
+                              task.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.check_circle_outline,
+                              color:
+                              task.isCompleted
+                                  ? Colors.green
+                                  : Colors.grey,
+                              size: 30,
+                            ),
+                            ),
+                            IconButton(onPressed: (){
+                              deleteTask(task.id!);
+                              }, icon: Icon(Icons.delete)),
+
+                    ]
+                        )
                       ],
                     );
                   },

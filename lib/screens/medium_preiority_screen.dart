@@ -15,12 +15,12 @@ class MediumPreiorityScreen extends StatefulWidget {
 }
 
 class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
+  late String userId;
 
   final TaskService taskService = TaskService();
   final auth = FirebaseAuth.instance;
   late final user = auth.currentUser;
   final UserService userService = UserService();
-  late String userId = user!.uid;
   UserModel? userModel;
   late Stream<List<TaskModel>> taskStream;
 
@@ -32,6 +32,27 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
       userModel = user;
     });
   }
+  Future<void> changestatues(TaskModel task) async {
+    final updatedTask = TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      isCompleted: !task.isCompleted,
+      userId: task.userId,
+      alert: task.alert,
+    );
+    await taskService.updateTask(task.id!, updatedTask);
+  }
+  Future<void> deleteTask(String taskId) async {
+    await taskService.deleteTask(taskId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Task deleted successfully')),
+    );
+    Navigator.pop(context);
+  }
+
 
   @override
   void initState() {
@@ -46,7 +67,6 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
     }
 
     userId = user.uid;
-
     loadUser();
     taskStream = taskService.getTasks(userId);
   }
@@ -97,17 +117,9 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
 
                 if (tasks.isEmpty) {
                   return const Center(
-                    child: Text('No High Priority Tasks'),
+                    child: Text('No Medium Priority Tasks'),
                   );
                 }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
                 return ListView.separated(
                   itemCount: tasks.length,
                   separatorBuilder: (context, index) => const Divider(),
@@ -130,6 +142,30 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
                           ),
 
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(onPressed: (){
+                              changestatues(task);
+
+                    }, icon: Icon(
+                              task.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.check_circle_outline,
+                              color:
+                              task.isCompleted
+                                  ? Colors.green
+                                  : Colors.grey,
+                              size: 30,
+                            ),
+                            ),
+                            IconButton(onPressed: (){
+                              deleteTask(task.id!);
+
+                            }, icon: Icon(Icons.delete)),
+
+                      ],
+                    )
                       ],
                     );
                   },

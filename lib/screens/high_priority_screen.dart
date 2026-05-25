@@ -19,6 +19,8 @@ class HighPriorityScreen extends StatefulWidget {
 
  class _HighPriorityScreenState extends State<HighPriorityScreen> {
 
+
+
   final TaskService taskService = TaskService();
   final auth = FirebaseAuth.instance;
   late final user = auth.currentUser;
@@ -36,6 +38,28 @@ class HighPriorityScreen extends StatefulWidget {
       userModel = user;
     });
   }
+  Future<void> deleteTask(String taskId) async {
+    await taskService.deleteTask(taskId);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Task deleted successfully')),
+    );
+    Navigator.pop(context);
+  }
+Future<void> changestatues(TaskModel task) async {
+    final updatedTask = TaskModel(
+      id: task.id,
+      title: task.title,
+      description: task.description,
+      dueDate: task.dueDate,
+      priority: task.priority,
+      isCompleted: !task.isCompleted,
+      userId: task.userId,
+      alert: task.alert,
+    );
+    await taskService.updateTask(task.id!, updatedTask);
+
+}
+
 
   @override
   void initState() {
@@ -54,10 +78,6 @@ class HighPriorityScreen extends StatefulWidget {
     loadUser();
     taskStream = taskService.getTasks(userId);
   }
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -134,7 +154,33 @@ class HighPriorityScreen extends StatefulWidget {
                           ),
 
                         ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(onPressed: (){
+                              changestatues(task);
+                            }, icon: Icon(
+                              task.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.check_circle_outline,
+                              color:
+                              task.isCompleted
+                                  ? Colors.green
+                                  : Colors.grey,
+                              size: 30,
+                            ),
+
+                            ),
+
+                            IconButton(onPressed: (){
+                              deleteTask(task.id!);
+
+                            }, icon: Icon(Icons.delete)),
+
+                          ]
+                        )
                       ],
+
                     );
                   },
                 );

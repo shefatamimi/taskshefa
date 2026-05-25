@@ -18,14 +18,17 @@ class TaskService {
     await _firestore.collection('tasks').doc(id).delete();
   }
 
-  Stream<List<TaskModel>> getTasks(String userId) {
-    return _firestore
-        .collection('tasks')
-        .where('userId', isEqualTo: userId)
-        .snapshots()
-        .map((snapshot) {
+  Stream<List<TaskModel>> getTasks(String userId, {bool? isCompleted}) {
+    Query query = _firestore.collection('tasks')
+        .where('userId', isEqualTo: userId);
+
+    if (isCompleted != null) {
+      query = query.where('isCompleted', isEqualTo: isCompleted);
+    }
+
+    return query.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data();
+        final data = doc.data() as Map<String, dynamic>;
 
         return TaskModel.fromJson({
           ...data,

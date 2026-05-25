@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/screens/Low_priority_screen.dart';
 import 'package:task_shefa/screens/add_task.dart';
 import 'package:task_shefa/screens/high_priority_screen.dart';
 import 'package:task_shefa/screens/medium_preiority_screen.dart';
 import 'package:task_shefa/screens/my_tasks_screen.dart';
+import 'package:task_shefa/screens/setting_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
@@ -34,6 +36,10 @@ class _GroubScreenState extends State<GroubScreen> {
       userModel = user;
     });
   }
+
+
+
+
   @override
   void initState() {
     super.initState();
@@ -52,7 +58,12 @@ class _GroubScreenState extends State<GroubScreen> {
         actions: [
           IconButton(onPressed: (){}, icon: Icon(Icons.notifications_none_sharp)),
         ],
-        leading: IconButton(onPressed: (){}, icon: Icon(Icons.menu)),
+        leading: IconButton(onPressed: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => SettingScreen()),
+          );
+        }, icon: Icon(Icons.menu)),
         centerTitle: true,
       ),
       body:SingleChildScrollView(
@@ -164,7 +175,7 @@ class _GroubScreenState extends State<GroubScreen> {
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: LinearProgressIndicator(
-                        value: 0.8,
+                        value:2,
                         minHeight: 8,
                         backgroundColor: Colors.grey.shade300,
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
