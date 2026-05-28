@@ -573,6 +573,46 @@ class _GroubScreenState extends State<GroubScreen> {
                                     ],
                                   ),
 
+                                  Row(
+                                    mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "8 Tasks",
+                                        style: TextStyle(
+                                          fontWeight:
+                                          FontWeight.w600,
+                                        ),
+                                      ),
+
+                                      Text(
+                                        "80%",
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontWeight:
+                                          FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  SizedBox(height: 8),
+
+                                  ClipRRect(
+                                    borderRadius:
+                                    BorderRadius.circular(10),
+                                    child: LinearProgressIndicator(
+                                      value: 0.8,
+                                      minHeight: 8,
+                                      backgroundColor:
+                                      Colors.grey.shade300,
+                                      valueColor:
+                                      AlwaysStoppedAnimation<Color>(
+                                        Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+
 
 
                                 ],
@@ -586,15 +626,18 @@ class _GroubScreenState extends State<GroubScreen> {
                               size: 18,
                               color:
                               Colors.grey,
-                            )
-                            ,
+                            ),
+
+
 
                           ],
                         ),
 
+
                       ),
                     );
                   }).toList(),
+
                 );
               },
             ),
@@ -709,7 +752,7 @@ class _GroubScreenState extends State<GroubScreen> {
                               child: Text(
                                 "${tasks.length}",
                                 style: TextStyle(
-                                  fontSize: 30,
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
 

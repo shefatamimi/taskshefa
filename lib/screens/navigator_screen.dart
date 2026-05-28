@@ -16,8 +16,8 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentindex = 0;
 
   late final screens = [
-    MyTasks(),
     GroubScreen(groupId: '',),
+    MyTasks(),
     EditProfil(),
   ];
 
@@ -36,11 +36,11 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Group',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.folder),
-            label: 'Group',
+            label: 'My Tasks',
           ),
 
           BottomNavigationBarItem(icon: Icon(Icons.person),
