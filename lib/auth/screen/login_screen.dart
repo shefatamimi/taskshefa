@@ -72,11 +72,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             hintText: 'Email',
                             labelText: 'Email',
                             prefixIcon: Icon(Icons.email),
-          
+
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(color: Colors.black),
-          
+
                             ),
                           ),
                         ),
@@ -88,18 +88,18 @@ class _LoginScreenState extends State<LoginScreen> {
                             }
                             return null;
                           },
-          
+
                           obscureText: _obscureText,
                           controller: _passwordController,
                           decoration: InputDecoration(
                             hintText: 'Password',
                             labelText: 'Password',
-          
+
                             prefixIcon: Icon(Icons.lock),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.all(Radius.circular(10)),
                               borderSide: BorderSide(color: Colors.black),
-          
+
                             ),
                             suffixIcon: InkWell(
                                 onTap: () {
@@ -110,18 +110,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: Icon(_obscureText
                                     ? Icons.visibility
                                     : Icons.visibility_off)),
-          
-          
-          
+
+
+
                           ),
-          
+
                         ),
                         const Padding(
                           padding: EdgeInsets.only(left: 215,top: 7),
                           child: InkWell(child: Text('Forgot Password?',
                               style: TextStyle(color: Colors.blueGrey, fontSize: 12, fontWeight: FontWeight.bold))
                           ),
-          
+
                         ),
                         const SizedBox(height: 30,),
                         ElevatedButton(onPressed: (){
@@ -139,13 +139,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               backgroundColor: Colors.blueGrey,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
-          
+
                                 borderRadius: BorderRadius.circular(10),
                               ),
                             )
                         ),
-          
-          
+
+
                         const SizedBox(height: 20,),
                         Row(
                           children: [
@@ -162,14 +162,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             ElevatedButton.icon(
-          
+
                               style: ElevatedButton.styleFrom(
                                   minimumSize:  Size(250, 50),
                                   backgroundColor: Colors.white,
                                   foregroundColor: Colors.black87,
-          
+
                                   shape: RoundedRectangleBorder(
-          
+
                                       borderRadius: BorderRadius.circular(10),
                                       side: const BorderSide(color: Colors.black45)
                                   )
@@ -183,10 +183,10 @@ class _LoginScreenState extends State<LoginScreen> {
                               label: const Text(
                                 'Login With Google',
                                 style: TextStyle(fontSize: 17),
-          
+
                               ),
                             ),
-          
+
                           ],
                         ),
                         SizedBox(height: 25,),
@@ -202,14 +202,14 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Text('Sign Up', style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold),),
                             )
                           ],)
-          
-          
-          
+
+
+
                       ]
-          
+
                   ),
-          
-          
+
+
                 ),
               ),
             ),

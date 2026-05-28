@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
       body:
         SingleChildScrollView(
           child: Column(
-          
+
             children: [
               SizedBox(height: 150),
               Padding(
@@ -35,9 +35,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-          
+
               SizedBox(height: 10),
-          
+
               Text(
                 "This is a productivity tool designed to help you manage\n"
                     "your tasks and stay organized in a simple\n"
@@ -70,10 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
-          
+
                 ),),
               ),
-          
+
             ] ,
           ),
         ),

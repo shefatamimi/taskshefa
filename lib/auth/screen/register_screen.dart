@@ -51,7 +51,6 @@ class _RegesterScreenState extends State<RegesterScreen> {
         ),
       ),
       body:
-
       SingleChildScrollView(
         child: Form(
           key: _formKey,
