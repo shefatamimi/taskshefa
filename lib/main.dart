@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:task_shefa/auth/screen/login_screen.dart';
-import 'package:task_shefa/screens/edit_task_screen.dart';
-import 'package:task_shefa/screens/groub_screen.dart';
-import 'package:task_shefa/screens/navigator_screen.dart';
 import 'firebase_options.dart';
 
 void main() async{
@@ -40,7 +37,7 @@ class MyApp extends StatelessWidget {
         // tested with just a hot reload.
         colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: EditTaskScreen()
+      home: LoginScreen()
     );
   }
 }

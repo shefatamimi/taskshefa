@@ -129,7 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             _emailController.text,
                             _passwordController.text,
                           );
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> const HomeScreen()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=>  HomeScreen()));
                         }
                       }, child: const Text('Login',
                           style: TextStyle(fontSize: 37, fontWeight: FontWeight.bold)),

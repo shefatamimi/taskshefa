@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class TaskModel {
   String? id;
+  final String groupId;
   final String title;
   final String description;
   final DateTime dueDate;
@@ -10,24 +13,25 @@ class TaskModel {
 
   TaskModel({
     this.id,
+    required this.groupId,
     required this.title,
     required this.description,
     required this.dueDate,
     this.isCompleted = false,
     required this.userId,
-    this.priority = 'Medium',
+    this.priority = 'None',
     this.alert = 'None',
-
   });
 
   factory TaskModel.fromJson(Map<String, dynamic> map) {
     return TaskModel(
       id: map['id'],
-      title: map['title'],
-      description: map['description'],
+      groupId: map['groupId'] ?? '',
+      title: map['title'] ?? '',
+      description: map['description'] ?? '',
       dueDate: DateTime.parse(map['dueDate']),
       isCompleted: map['isCompleted'] ?? false,
-      userId: map['userId'],
+      userId: map['userId'] ?? '',
       priority: map['priority'] ?? 'Medium',
       alert: map['alert'] ?? 'None',
     );
@@ -36,6 +40,7 @@ class TaskModel {
   Map<String, dynamic> toMap() {
     return {
       'id': id,
+      'groupId': groupId,
       'title': title,
       'description': description,
       'dueDate': dueDate.toIso8601String(),

@@ -1,7 +1,5 @@
-//firestore
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
-
 
 class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -11,22 +9,37 @@ class TaskService {
   }
 
   Future<void> updateTask(String id, TaskModel task) async {
-    await _firestore.collection('tasks').doc(id).update(task.toMap());
+    await _firestore
+        .collection('tasks')
+        .doc(id)
+        .set(task.toMap(), SetOptions(merge: true));
   }
 
   Future<void> deleteTask(String id) async {
     await _firestore.collection('tasks').doc(id).delete();
   }
 
-  Stream<List<TaskModel>> getTasks(String userId, {bool? isCompleted}) {
-    Query query = _firestore.collection('tasks')
-        .where('userId', isEqualTo: userId);
+  Stream<List<TaskModel>> getTasks(String userId) {
+    return FirebaseFirestore.instance
+        .collection('tasks')
+        .where('userId', isEqualTo: userId)
+        .snapshots()
+        .map((snapshot) =>
+        snapshot.docs.map((doc) =>
+            TaskModel.fromJson({...doc.data(), 'id': doc.id})
+        ).toList());
+  }
 
-    if (isCompleted != null) {
-      query = query.where('isCompleted', isEqualTo: isCompleted);
-    }
-
-    return query.snapshots().map((snapshot) {
+  Stream<List<TaskModel>> getTasksByGroup(
+      String userId,
+      String groupId,
+      ) {
+    return _firestore
+        .collection('tasks')
+        .where('userId', isEqualTo: userId)
+        .where('groupId', isEqualTo: groupId)
+        .snapshots()
+        .map((snapshot) {
       return snapshot.docs.map((doc) {
         final data = doc.data() as Map<String, dynamic>;
 

@@ -1,30 +1,36 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_model/group_model.dart';
+import 'package:task_shefa/group_task/group_service/group_service.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
-
-
-class LowPriorityScreen extends StatefulWidget {
-  const LowPriorityScreen({super.key});
+class CustimizeGroup extends StatefulWidget {
+  final String groupId;
+  const CustimizeGroup({super.key, required this.groupId});
 
   @override
-  State<LowPriorityScreen> createState() => _LowPriorityScreenState();
-
+  State<CustimizeGroup> createState() => _CustimizeGroupState();
 }
 
-class _LowPriorityScreenState extends State<LowPriorityScreen> {
-
+class _CustimizeGroupState extends State<CustimizeGroup> {
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
   final TaskService taskService = TaskService();
   final auth = FirebaseAuth.instance;
   late final user = auth.currentUser;
   final UserService userService = UserService();
   late String userId = user!.uid;
+  final GroupService groupService = GroupService();
+  late GroupModel group;
+  late String groupId = widget.groupId;
+
+
+
   UserModel? userModel;
   late Stream<List<TaskModel>> taskStream;
-
-
+  final date = DateTime.now();
   Future<void> loadUser() async {
     final user = await userService.getUser(userId);
     if (!mounted) return;
@@ -40,8 +46,9 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
       dueDate: task.dueDate,
       priority: task.priority,
       isCompleted: !task.isCompleted,
-        userId: task.userId,
+      userId: task.userId,
       alert: task.alert,
+      groupId: task.groupId,
     );
     await taskService.updateTask(task.id!, updatedTask);
   }
@@ -50,28 +57,79 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Task deleted successfully')),
     );
-    Navigator.pop(context);
   }
+  void showAddGroupDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Add Task"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(labelText: "Title"),
+              ),
+              TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: "Description"),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            TextButton(
+              onPressed
+              : () async {
+                try {
 
+                  final newTask = TaskModel(
+                    id: null,
+                    title: _titleController.text,
+                    description: _descriptionController.text,
+                    dueDate: date,
+                    priority: 'None',
+                    isCompleted: false,
+                    userId: userId,
+                    groupId: widget.groupId,
+                    alert: '',
+                  );
+                  await taskService.addTask(newTask);
+                  Navigator.pop(context);
+                  print("ADDED SUCCESSFULLY");
+                } catch (e) {
+                  print("ERROR: $e");
+                }
+              }
+              ,
+              child: Text("Add"),
+            ),
+          ],
+        );
+      },
+    );
+
+  }
   @override
-  void initState() {
+  void initState()
+  {
     super.initState();
     final user = auth.currentUser;
-
     if (user == null) {
-
       taskStream = const Stream.empty();
       userId = "";
       return;
     }
-
     userId = user.uid;
 
     loadUser();
-    taskStream = taskService.getTasks(userId);
+    taskStream = taskService.getTasksByGroup(userId, widget.groupId);
+
   }
-
-
 
 
 
@@ -79,8 +137,16 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Hello ${userModel?.name ?? "..."}'),
-        centerTitle: true,
+        title: Text('Task Group'),
+        backgroundColor: Colors.blueGrey,
+        foregroundColor: Colors.white,
+      ),
+
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showAddGroupDialog();
+        },
+        child: const Icon(Icons.add),
       ),
 
       body: Column(
@@ -113,11 +179,10 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
 
               builder: (context, snapshot) {
                 var tasks = snapshot.data ?? [];
-                tasks = tasks.where((task) => task.priority == 'Low').toList();
 
                 if (tasks.isEmpty) {
                   return const Center(
-                    child: Text('No High Priority Tasks'),
+                    child: Text('No Assigned Tasks'),
                   );
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -151,26 +216,26 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
 
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(onPressed: (){
-                              changestatues(task);
-                            }, icon: Icon(
-                              task.isCompleted
-                                  ? Icons.check_circle
-                                  : Icons.check_circle_outline,
-                              color:
-                              task.isCompleted
-                                  ? Colors.green
-                                  : Colors.grey,
-                              size: 30,
-                            ),
-                            ),
-                            IconButton(onPressed: (){
-                              deleteTask(task.id!);
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              IconButton(onPressed: (){
+                                changestatues(task);
+                              }, icon: Icon(
+                                task.isCompleted
+                                    ? Icons.check_circle
+                                    : Icons.check_circle_outline,
+                                color:
+                                task.isCompleted
+                                    ? Colors.green
+                                    : Colors.grey,
+                                size: 30,
+                              ),
+                              ),
+                              IconButton(onPressed: (){
+                                deleteTask(task.id!);
                               }, icon: Icon(Icons.delete)),
 
-                    ]
+                            ]
                         )
                       ],
                     );
@@ -183,6 +248,8 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
       ),
 
 
+
     );
+
   }
 }

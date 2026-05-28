@@ -55,6 +55,7 @@ Future<void> changestatues(TaskModel task) async {
       isCompleted: !task.isCompleted,
       userId: task.userId,
       alert: task.alert,
+      groupId: task.groupId,
     );
     await taskService.updateTask(task.id!, updatedTask);
 

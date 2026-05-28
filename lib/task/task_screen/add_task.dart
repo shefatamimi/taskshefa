@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_shefa/screens/my_tasks_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
+import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
+
+
   AddTaskScreen({super.key});
 
   final date = DateTime.now();
@@ -22,17 +24,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   late final user = auth.currentUser;
   late final String userId = user!.uid;
 
+
   String alertValue = 'None';
-  String priorityValue = 'Medium';
+  String priorityValue = 'None';
 
   Future<void> addTask() async {
     final task = TaskModel(
+      id: null,
       title: _titleController.text,
       description: _descriptionController.text,
       dueDate: DateTime.now(),
       userId: userId,
-      priority: priorityValue,
+      priority: priorityValue ?? 'None',
       alert: alertValue,
+      groupId: 'general',
+      isCompleted: false,
     );
 
     await taskService.addTask(task);
@@ -273,6 +279,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                                   Navigator.pop(context);
                                 },
                               ),
+                              ListTile(
+                                title: Text('None'),
+                                onTap: () {
+                                  setState(() => priorityValue = 'None');
+                                  Navigator.pop(context);
+                                },
+                              ),
                             ],
                           ),
                         ),
@@ -362,7 +375,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   await addTask();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyTasks()),
+                    MaterialPageRoute(builder: (context) => const MyTasks()),
                   );
                 },
                 child: Text('Create Task',

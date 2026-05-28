@@ -6,21 +6,21 @@ import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
 
 
-class MediumPreiorityScreen extends StatefulWidget {
-  const MediumPreiorityScreen({super.key});
+class LowPriorityScreen extends StatefulWidget {
+  const LowPriorityScreen({super.key});
 
   @override
-  State<MediumPreiorityScreen> createState() => _MediumPreiorityScreenState();
+  State<LowPriorityScreen> createState() => _LowPriorityScreenState();
 
 }
 
-class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
-  late String userId;
+class _LowPriorityScreenState extends State<LowPriorityScreen> {
 
   final TaskService taskService = TaskService();
   final auth = FirebaseAuth.instance;
   late final user = auth.currentUser;
   final UserService userService = UserService();
+  late String userId = user!.uid;
   UserModel? userModel;
   late Stream<List<TaskModel>> taskStream;
 
@@ -40,8 +40,9 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
       dueDate: task.dueDate,
       priority: task.priority,
       isCompleted: !task.isCompleted,
-      userId: task.userId,
+        userId: task.userId,
       alert: task.alert,
+      groupId: task.groupId,
     );
     await taskService.updateTask(task.id!, updatedTask);
   }
@@ -52,7 +53,6 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
     );
     Navigator.pop(context);
   }
-
 
   @override
   void initState() {
@@ -67,6 +67,7 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
     }
 
     userId = user.uid;
+
     loadUser();
     taskStream = taskService.getTasks(userId);
   }
@@ -113,13 +114,21 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
 
               builder: (context, snapshot) {
                 var tasks = snapshot.data ?? [];
-                tasks = tasks.where((task) => task.priority == 'Medium').toList();
+                tasks = tasks.where((task) => task.priority == 'Low').toList();
 
                 if (tasks.isEmpty) {
                   return const Center(
-                    child: Text('No Medium Priority Tasks'),
+                    child: Text('No High Priority Tasks'),
                   );
                 }
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                }
+
                 return ListView.separated(
                   itemCount: tasks.length,
                   separatorBuilder: (context, index) => const Divider(),
@@ -147,8 +156,7 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
                           children: [
                             IconButton(onPressed: (){
                               changestatues(task);
-
-                    }, icon: Icon(
+                            }, icon: Icon(
                               task.isCompleted
                                   ? Icons.check_circle
                                   : Icons.check_circle_outline,
@@ -161,11 +169,10 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
                             ),
                             IconButton(onPressed: (){
                               deleteTask(task.id!);
+                              }, icon: Icon(Icons.delete)),
 
-                            }, icon: Icon(Icons.delete)),
-
-                      ],
-                    )
+                    ]
+                        )
                       ],
                     );
                   },

@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-
-import 'package:task_shefa/screens/add_task.dart';
-import 'package:task_shefa/screens/groub_screen.dart';
-import 'package:task_shefa/screens/my_tasks_screen.dart';
+import 'package:task_shefa/group_task/group_screens/groub_screen.dart';
+import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
+import 'package:task_shefa/users/users_screen/edit_profil_screen.dart';
 
 class NavigatorScreen extends StatefulWidget {
    NavigatorScreen({super.key,});
@@ -17,9 +16,9 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentindex = 0;
 
   late final screens = [
-    GroubScreen(),
     MyTasks(),
-    AddTaskScreen(),
+    GroubScreen(groupId: '',),
+    EditProfil(),
   ];
 
 
@@ -40,11 +39,12 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
             label: 'Home',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite),
-            label: 'Favorites',
+            icon: Icon(Icons.folder),
+            label: 'Group',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.settings),
-            label: 'Settings',
+
+          BottomNavigationBarItem(icon: Icon(Icons.person),
+            label: 'Profile',
           )
         ],
       ),

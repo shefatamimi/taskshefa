@@ -1,13 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_shefa/screens/add_task.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
+import 'package:task_shefa/task/task_screen/add_task.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
 
 class MyTasks extends StatefulWidget {
-  const MyTasks({super.key,});
+
+  const MyTasks({super.key});
 
   @override
   State<MyTasks> createState() => _MyTasksState();
@@ -20,6 +21,7 @@ class _MyTasksState extends State<MyTasks> {
 
   UserModel? userModel;
   late String userId;
+
   late Stream<List<TaskModel>> taskStream;
 
   final color_completed = Colors.grey;
@@ -34,6 +36,8 @@ class _MyTasksState extends State<MyTasks> {
       isCompleted: !task.isCompleted,
       userId: task.userId,
       alert: task.alert,
+      groupId: task.groupId,
+
 
     );
     taskService.updateTask(task.id!, updatedTask);
@@ -91,13 +95,6 @@ class _MyTasksState extends State<MyTasks> {
     });
 
   }
-
-
-
-
-
-
-
 
   @override
   void initState() {
@@ -251,7 +248,9 @@ class _MyTasksState extends State<MyTasks> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => AddTaskScreen()),
+            MaterialPageRoute(builder: (context) => AddTaskScreen(
+
+            )),
           );
         },
         child: const Icon(Icons.add),

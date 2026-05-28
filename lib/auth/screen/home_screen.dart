@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_shefa/screens/my_tasks_screen.dart';
+import 'package:task_shefa/screens/navigator_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -62,7 +62,7 @@ class _HomeScreenState extends State<HomeScreen> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyTasks()),
+                  MaterialPageRoute(builder: (context) => NavigatorScreen()),
                 );
               },
               child: Text('     Get Started      >',style: TextStyle(
