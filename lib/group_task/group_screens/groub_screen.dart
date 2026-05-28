@@ -38,6 +38,7 @@ class _GroubScreenState extends State<GroubScreen> {
 
   late final user = auth.currentUser;
   late final String userId = user!.uid;
+  final List _tasks = [];
 
   Future<void> loadUser() async {
     final user = await userService.getUser(userId);
@@ -57,6 +58,8 @@ class _GroubScreenState extends State<GroubScreen> {
 
     taskStream = taskService.getTasks(userId);
     groupsStream = GroupService().getGroups(userId);
+    _tasks.add( taskStream);
+
   }
 
   void showAddGroupDialog() {
@@ -356,6 +359,7 @@ class _GroubScreenState extends State<GroubScreen> {
 
                 final groups =
                 snapshot.data!;
+
 
                 return Column(
                   children:
@@ -692,24 +696,31 @@ class _GroubScreenState extends State<GroubScreen> {
 
                         SizedBox(width: 12),
 
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor:
-                          Colors.blue,
-                          child: Text(
-                            '25',
-                            style:
-                            TextStyle(
-                              fontSize: 20,
-                              fontWeight:
-                              FontWeight
-                                  .bold,
-                              color: Colors
-                                  .white,
-                            ),
-                          ),
+                        StreamBuilder<List<TaskModel>>(
+                          stream: taskStream,
+
+                          builder: (context, snapshot) {
+
+                            final tasks = snapshot.data ?? [];
+
+                            return CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.blue,
+                              child: Text(
+                                "${tasks.length}",
+                                style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+
+                                  
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ],
+
                     ),
                   ],
                 ),
