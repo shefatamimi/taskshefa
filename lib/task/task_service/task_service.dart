@@ -50,4 +50,11 @@ class TaskService {
       }).toList();
     });
   }
-}
+
+  Future<void> deleteAllTasks() async {
+    final tasks = await _firestore.collection('tasks').get();
+    for (final task in tasks.docs) {
+      await _firestore.collection('tasks').doc(task.id).delete();
+    }
+  }
+  }

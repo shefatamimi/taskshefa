@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/group_task/group_model/group_model.dart';
@@ -6,7 +7,7 @@ import 'package:task_shefa/group_task/group_screens/custimize_group.dart';
 import 'package:task_shefa/group_task/group_screens/high_priority_screen.dart';
 import 'package:task_shefa/group_task/group_screens/medium_preiority_screen.dart';
 import 'package:task_shefa/group_task/group_service/group_service.dart';
-import 'package:task_shefa/screens/setting_screen.dart';
+import 'package:task_shefa/setting/screens/setting_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
@@ -49,6 +50,24 @@ class _GroubScreenState extends State<GroubScreen> {
       userModel = user;
     });
   }
+
+
+  double countHighPriorityTasks(List<TaskModel> tasks) {
+
+
+    final highTasks = tasks
+        .where((task) => task.priority == 'High')
+        .toList();
+
+    return tasks.isEmpty
+        ? 0.0
+        : highTasks.length / tasks.length;
+
+  }
+
+
+
+
 
   @override
   void initState() {
@@ -206,43 +225,69 @@ class _GroubScreenState extends State<GroubScreen> {
             SizedBox(height: 16),
 
             Row(
-              mainAxisAlignment:
-              MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "8 Tasks",
-                  style: TextStyle(
-                    fontWeight:
-                    FontWeight.w600,
-                  ),
-                ),
 
-                Text(
-                  "80%",
-                  style: TextStyle(
-                    color: color,
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
+              children: [
+                StreamBuilder<List<TaskModel>>(
+                  stream: taskStream,
+                  builder: (context, snapshot) {
+                    final tasks = snapshot.data ?? [];
+                    final highPriorityTasks = tasks
+                        .where((task) => task.priority == 'High')
+                        .toList();
+                    return Row(
+                      mainAxisAlignment:
+                      MainAxisAlignment.spaceBetween,
+
+
+                      children: [
+                        Text(
+                          "${highPriorityTasks.length}",
+                          style: TextStyle(
+                            fontWeight:
+                            FontWeight.w600,
+                          ),
+                        ),
+                        SizedBox(width: 230),
+                        Text(
+                          "${(highPriorityTasks.length / tasks.length * 100).toStringAsFixed(0)}%",
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight:
+                            FontWeight.bold,
+                          ),
+                        ),
+
+                      ],
+                    );
+
+
+                  },
+
+
+                )
               ],
             ),
 
             SizedBox(height: 8),
 
-            ClipRRect(
-              borderRadius:
-              BorderRadius.circular(10),
-              child: LinearProgressIndicator(
-                value: 0.8,
-                minHeight: 8,
-                backgroundColor:
-                Colors.grey.shade300,
-                valueColor:
-                AlwaysStoppedAnimation<Color>(
-                  color,
-                ),
-              ),
+            StreamBuilder<List<TaskModel>>(
+              stream: taskStream,
+              builder: (context, snapshot) {
+
+                final tasks = snapshot.data ?? [];
+
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: LinearProgressIndicator(
+                    value: countHighPriorityTasks(tasks),
+                    minHeight: 8,
+                    backgroundColor: Colors.grey.shade300,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      color,
+                    ),
+                  ),
+                );
+              },
             ),
           ],
         ),
@@ -323,6 +368,7 @@ class _GroubScreenState extends State<GroubScreen> {
               color: Colors.red,
               icon: Icons.flag,
               screen: HighPriorityScreen(),
+
             ),
 
             buildPriorityCard(
@@ -756,7 +802,7 @@ class _GroubScreenState extends State<GroubScreen> {
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
 
-                                  
+
                                 ),
                               ),
                             );

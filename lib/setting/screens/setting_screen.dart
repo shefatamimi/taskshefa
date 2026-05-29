@@ -1,6 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/auth/screen/login_screen.dart';
+import 'package:task_shefa/setting/screens/about_app_screen.dart';
+import 'package:task_shefa/setting/screens/backup_tasks_screen.dart';
+
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
@@ -521,6 +524,10 @@ class _SettingScreenState extends State<SettingScreen> {
               Center(
                 child: InkWell(
                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => BackupScreen()),
+                    );
 
                   },
 
@@ -595,8 +602,9 @@ class _SettingScreenState extends State<SettingScreen> {
                             ),
                             TextButton(
                               onPressed: () async {
-
+                                await taskService.deleteAllTasks();
                                 Navigator.pop(context);
+
                               },
                               child: Text('Delete'),
                             ),
@@ -670,6 +678,10 @@ class _SettingScreenState extends State<SettingScreen> {
               Center(
                 child: InkWell(
                   onTap: () {
+                    Navigator.push
+                        (context,
+                      MaterialPageRoute(builder: (context) => AboutScreen()));
+
 
                   },
 
