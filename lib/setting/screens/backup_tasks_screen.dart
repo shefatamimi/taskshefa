@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/setting/service/backup_service.dart';
 
 class BackupScreen extends StatefulWidget {
   const BackupScreen({super.key});
@@ -138,8 +140,9 @@ class _BackupScreenState extends State<BackupScreen> {
                         child: ElevatedButton(
                           onPressed: () async{
                             try {
-
-
+                              final userId = FirebaseAuth.instance.currentUser!.uid;
+                              await BackupService.backupTasks(userId);
+                              await BackupService.backupGroups(userId);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
@@ -290,6 +293,9 @@ class _BackupScreenState extends State<BackupScreen> {
                         child: ElevatedButton(
                           onPressed: () async{
                             try {
+                              await BackupService.restoreTasks();
+                              await BackupService.restoreGroups();
+
 
 
                               ScaffoldMessenger.of(context).showSnackBar(

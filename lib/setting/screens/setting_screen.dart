@@ -682,7 +682,6 @@ class _SettingScreenState extends State<SettingScreen> {
                         (context,
                       MaterialPageRoute(builder: (context) => AboutScreen()));
 
-
                   },
 
 

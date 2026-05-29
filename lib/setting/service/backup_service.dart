@@ -1,115 +1,109 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:path_provider/path_provider.dart';
 
 class BackupService {
-
-  // ================= BACKUP TASKS =================
+  // =========================
+  // BACKUP TASKS
+  // =========================
   static Future<void> backupTasks(String userId) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('tasks')
-          .where('userId', isEqualTo: userId)
-          .get();
+    final tasksSnap = await FirebaseFirestore.instance
+        .collection('tasks')
+        .where('userId', isEqualTo: userId)
+        .get();
 
-      List<Map<String, dynamic>> data = snapshot.docs.map((doc) {
-        final map = doc.data();
+    final batch = FirebaseFirestore.instance.batch();
 
-        // 🔥 حل مشكلة Timestamp
-        map.forEach((key, value) {
-          if (value is Timestamp) {
-            map[key] = value.toDate().toIso8601String();
-          }
-        });
+    for (var doc in tasksSnap.docs) {
+      final backupRef = FirebaseFirestore.instance
+          .collection('backup_tasks')
+          .doc(doc.id);
 
-        return map;
-      }).toList();
-
-      final jsonString = jsonEncode(data);
-
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/tasks_backup.json');
-
-      await file.writeAsString(jsonString);
-
-      print("✅ TASKS BACKUP DONE: ${file.path}");
-    } catch (e) {
-      print("❌ BACKUP ERROR: $e");
+      batch.set(backupRef, doc.data());
     }
+
+    await batch.commit();
   }
 
-  // ================= RESTORE TASKS =================
+  // =========================
+  // RESTORE TASKS
+  // =========================
   static Future<void> restoreTasks() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/tasks_backup.json');
+    final backupSnap = await FirebaseFirestore.instance
+        .collection('backup_tasks')
+        .get();
 
-      if (!await file.exists()) {
-        print("❌ No backup file found");
-        return;
-      }
+    final batch = FirebaseFirestore.instance.batch();
 
-      final jsonString = await file.readAsString();
-      final List data = jsonDecode(jsonString);
+    for (var doc in backupSnap.docs) {
+      final newRef = FirebaseFirestore.instance
+          .collection('tasks')
+          .doc();
 
-      for (var item in data) {
-        await FirebaseFirestore.instance
-            .collection('tasks')
-            .add(Map<String, dynamic>.from(item));
-      }
-
-      print("✅ TASKS RESTORE DONE");
-    } catch (e) {
-      print("❌ RESTORE ERROR: $e");
+      batch.set(newRef, doc.data());
     }
+
+    await batch.commit();
   }
 
-  // ================= BACKUP GROUPS =================
+  // =========================
+  // BACKUP GROUPS
+  // =========================
   static Future<void> backupGroups(String userId) async {
-    try {
-      final snapshot = await FirebaseFirestore.instance
-          .collection('groups')
-          .where('userId', isEqualTo: userId)
-          .get();
+    final groupsSnap = await FirebaseFirestore.instance
+        .collection('groups')
+        .where('userId', isEqualTo: userId)
+        .get();
 
-      List<Map<String, dynamic>> data =
-      snapshot.docs.map((doc) => doc.data()).toList();
+    final batch = FirebaseFirestore.instance.batch();
 
-      final jsonString = jsonEncode(data);
+    for (var doc in groupsSnap.docs) {
+      final backupRef = FirebaseFirestore.instance
+          .collection('backup_groups')
+          .doc(doc.id);
 
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/groups_backup.json');
-
-      await file.writeAsString(jsonString);
-
-      print("✅ GROUPS BACKUP DONE");
-    } catch (e) {
-      print("❌ GROUP BACKUP ERROR: $e");
+      batch.set(backupRef, doc.data());
     }
+
+    await batch.commit();
   }
 
-  // ================= RESTORE GROUPS =================
+  // =========================
+  // RESTORE GROUPS
+  // =========================
   static Future<void> restoreGroups() async {
-    try {
-      final dir = await getApplicationDocumentsDirectory();
-      final file = File('${dir.path}/groups_backup.json');
+    final backupSnap = await FirebaseFirestore.instance
+        .collection('backup_groups')
+        .get();
 
-      if (!await file.exists()) return;
+    final batch = FirebaseFirestore.instance.batch();
 
-      final jsonString = await file.readAsString();
-      final List data = jsonDecode(jsonString);
+    for (var doc in backupSnap.docs) {
+      final newRef = FirebaseFirestore.instance
+          .collection('groups')
+          .doc();
 
-      for (var item in data) {
-        await FirebaseFirestore.instance
-            .collection('groups')
-            .add(Map<String, dynamic>.from(item));
-      }
-
-      print("✅ GROUPS RESTORE DONE");
-    } catch (e) {
-      print("❌ GROUP RESTORE ERROR: $e");
+      batch.set(newRef, doc.data());
     }
+
+    await batch.commit();
+  }
+
+  // =========================
+  // DELETE BACKUP (optional)
+  // =========================
+  static Future<void> clearBackup() async {
+    final tasks = await FirebaseFirestore.instance.collection('backup_tasks').get();
+    final groups = await FirebaseFirestore.instance.collection('backup_groups').get();
+
+    final batch = FirebaseFirestore.instance.batch();
+
+    for (var d in tasks.docs) {
+      batch.delete(d.reference);
+    }
+
+    for (var d in groups.docs) {
+      batch.delete(d.reference);
+    }
+
+    await batch.commit();
   }
 }
