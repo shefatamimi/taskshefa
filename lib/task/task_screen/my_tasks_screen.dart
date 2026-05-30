@@ -303,6 +303,20 @@ class _MyTasksState extends State<MyTasks> {
                             size: 30,
                           ),
                         ),
+                            IconButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => AddTaskScreen())
+                                  );
+
+                                }, icon: Icon(
+                              Icons.edit,
+
+                            )
+                            ),
+
                         IconButton(
                           icon: const Icon(Icons.delete),
                           onPressed: () {
@@ -315,15 +329,7 @@ class _MyTasksState extends State<MyTasks> {
                             );
                           },
                         ),
-                            IconButton(
-                              onPressed: () {
-                                //shefa
 
-                              }, icon: Icon(
-                                Icons.edit,
-
-                            )
-                            )
                       ],
                     )
                       ],

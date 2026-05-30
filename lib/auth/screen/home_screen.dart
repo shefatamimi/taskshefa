@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:task_shefa/screens/navigator_screen.dart';
+import 'package:task_shefa/auth/screen/navigator_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});

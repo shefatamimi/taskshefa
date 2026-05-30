@@ -52,12 +52,13 @@ class _GroubScreenState extends State<GroubScreen> {
   }
 
 
-  double countHighPriorityTasks(List<TaskModel> tasks) {
+  double countHighPriorityTasks(List<TaskModel> tasks, String priority) {
 
 
     final highTasks = tasks
-        .where((task) => task.priority == 'High')
+        .where((task) => task.priority == priority&&task.isCompleted==false)
         .toList();
+    print(highTasks);
 
     return tasks.isEmpty
         ? 0.0
@@ -139,6 +140,7 @@ class _GroubScreenState extends State<GroubScreen> {
     required Color color,
     required IconData icon,
     required Widget screen,
+    required String priority,
   }) {
     return InkWell(
       onTap: () {
@@ -232,7 +234,7 @@ class _GroubScreenState extends State<GroubScreen> {
                   builder: (context, snapshot) {
                     final tasks = snapshot.data ?? [];
                     final highPriorityTasks = tasks
-                        .where((task) => task.priority == 'High')
+                        .where((task) => task.priority == priority && task.isCompleted==false)
                         .toList();
                     return Row(
                       mainAxisAlignment:
@@ -279,7 +281,7 @@ class _GroubScreenState extends State<GroubScreen> {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: LinearProgressIndicator(
-                    value: countHighPriorityTasks(tasks),
+                    value: countHighPriorityTasks(tasks, priority),
                     minHeight: 8,
                     backgroundColor: Colors.grey.shade300,
                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -294,6 +296,7 @@ class _GroubScreenState extends State<GroubScreen> {
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -368,6 +371,7 @@ class _GroubScreenState extends State<GroubScreen> {
               color: Colors.red,
               icon: Icons.flag,
               screen: HighPriorityScreen(),
+              priority: 'High',
 
             ),
 
@@ -380,6 +384,8 @@ class _GroubScreenState extends State<GroubScreen> {
               Icons.access_time_rounded,
               screen:
               MediumPreiorityScreen(),
+              priority: 'Medium',
+
             ),
 
             buildPriorityCard(
@@ -390,6 +396,7 @@ class _GroubScreenState extends State<GroubScreen> {
               icon:
               Icons.access_time_rounded,
               screen: LowPriorityScreen(),
+              priority: 'Low',
             ),
 
             SizedBox(height: 10),
