@@ -249,7 +249,7 @@ class _GroubScreenState extends State<GroubScreen> {
                             FontWeight.w600,
                           ),
                         ),
-                        SizedBox(width: 230),
+                        SizedBox(width: 250),
                         Text(
                           "${(highPriorityTasks.length / tasks.length * 100).toStringAsFixed(0)}%",
                           style: TextStyle(

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
+
 import 'package:task_shefa/task/task_service/task_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -375,7 +376,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   await addTask();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyTasks()),
+                    MaterialPageRoute(builder: (context) => MyTasks()),
                   );
                 },
                 child: Text('Create Task',

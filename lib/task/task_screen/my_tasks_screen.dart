@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/groub_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/add_task.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
@@ -157,6 +158,19 @@ class _MyTasksState extends State<MyTasks> {
       appBar: AppBar(
         title: Text('Hello ${userModel?.name ?? "..."}'),
         centerTitle: true,
+        leading: IconButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => GroubScreen(groupId: '',)
+
+            )
+            );
+
+          },
+          icon: Icon(Icons.arrow_back),
+        )
       ),
 
       body: Column(
