@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
@@ -95,6 +96,28 @@ class _MyTasksState extends State<MyTasks> {
     });
 
   }
+  void sortTasksByDate() {
+    setState(() {
+      taskStream = taskService.getTasks(userId);
+      taskStream = taskStream.map((tasks) {
+        tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+        return tasks;
+      });
+
+    });
+  }
+  void sortTasksByTitle() {
+    setState(() {
+      taskStream = taskService.getTasks(userId);
+      taskStream = taskStream.map((tasks) {
+        tasks.sort((a, b) => a.title.compareTo(b.title));
+        return tasks;
+      });
+
+    });
+  }
+
+
 
   @override
   void initState() {
@@ -136,21 +159,64 @@ class _MyTasksState extends State<MyTasks> {
         children: [
           const SizedBox(height: 20),
 
-          const Padding(
-            padding: EdgeInsets.all(8),
+          Padding(
+            padding: const EdgeInsets.all(8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
+                const Text(
                   'Project',
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                Text(
-                  'See All',
-                  style: TextStyle(color: Colors.blueGrey),
+                InkWell(
+                  onTap: () {
+                    showDialog(context: context, builder: (context) {
+                      return AlertDialog(
+                        title: Text('Sort Tasks'),
+                        content: Text('Select a sorting option:'),
+                        actions: [
+                          TextButton(
+
+                            onPressed: () async {
+                              setState(() {
+                                sortTasksByDate();
+                              });
+
+
+                              Navigator.pop(context,true);
+                            },
+                            child: Text('sort by date'),
+                          ),
+
+
+                            TextButton(
+                          onPressed: () async {
+                            setState(() {
+                              sortTasksByTitle();
+
+
+                            });
+
+                            Navigator.pop(context,true);
+                          },
+                          child: Text('sort A-z')
+                                                    )
+                        ],
+                      );
+                    },
+
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: const Text(
+                      'Sort by',
+                      style: TextStyle(color: Colors.blueGrey),
+                    ),
+                  ),
                 ),
               ],
             ),

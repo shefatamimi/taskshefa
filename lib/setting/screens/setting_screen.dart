@@ -8,6 +8,7 @@ import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
 import 'package:task_shefa/users/users_screen/edit_profil_screen.dart';
+import 'package:task_shefa/setting/screens/completed_tasks.dart';
 class SettingScreen extends StatefulWidget {
   const SettingScreen({super.key});
 
@@ -377,6 +378,11 @@ class _SettingScreenState extends State<SettingScreen> {
               Center(
                 child: InkWell(
                   onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CompletedTasks()),
+                    );
+
 
                   },
                   child: Container(
@@ -398,7 +404,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     child: Row(
                       children: [
                         SizedBox(width: 10,),
-                        Icon(Icons.lock, size: 30,),
+                        Icon(Icons.check_circle_outline, size: 30,),
 
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +414,7 @@ class _SettingScreenState extends State<SettingScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8),
                                 child: Text(
-                                  'Locked Task', style: TextStyle(
+                                  'Completed Tasks', style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),),
@@ -417,13 +423,13 @@ class _SettingScreenState extends State<SettingScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8),
                                 child: Text(
-                                  'Manage your locked tasks', style: TextStyle(
+                                  'View and manage completed tasks', style: TextStyle(
                                   fontSize: 10,
                                 ),),
                               ),
                             ]
                         ),
-                        SizedBox(width: 135,),
+                        SizedBox(width: 100,),
                         Icon(Icons.arrow_forward_ios, size: 20),
                       ],
                     ),
