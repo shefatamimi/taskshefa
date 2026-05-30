@@ -206,7 +206,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       color: Colors.deepPurple,
                       child: Column(
                         children: [
-                          Text('Start',
+                          Text('Start Time',
                               style: TextStyle(color: Colors.white)),
                           Text(
                             startTime == null
@@ -226,7 +226,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       color: Colors.deepPurple,
                       child: Column(
                         children: [
-                          Text('End',
+                          Text('End Time',
                               style: TextStyle(color: Colors.white)),
                           Text(
                             endTime == null
@@ -359,7 +359,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ],
               ),
 
-              SizedBox(height: 20),
+              SizedBox(height: 25),
 
               ElevatedButton(
                 style: ElevatedButton.styleFrom(

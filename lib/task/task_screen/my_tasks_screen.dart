@@ -16,6 +16,8 @@ class MyTasks extends StatefulWidget {
 }
 
 class _MyTasksState extends State<MyTasks> {
+
+
   final TaskService taskService = TaskService();
   final UserService userService = UserService();
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -66,6 +68,8 @@ class _MyTasksState extends State<MyTasks> {
     });
 
   }
+
+
   void deleteTask(TaskModel task) {
     showDialog(
         context: context,
@@ -311,6 +315,15 @@ class _MyTasksState extends State<MyTasks> {
                             );
                           },
                         ),
+                            IconButton(
+                              onPressed: () {
+                                //shefa
+
+                              }, icon: Icon(
+                                Icons.edit,
+
+                            )
+                            )
                       ],
                     )
                       ],

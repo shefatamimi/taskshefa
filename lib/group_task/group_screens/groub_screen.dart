@@ -391,16 +391,6 @@ class _GroubScreenState extends State<GroubScreen> {
               Icons.access_time_rounded,
               screen: LowPriorityScreen(),
             ),
-            buildPriorityCard(
-              title: "Low Priority",
-              description:
-              "Important tasks",
-              color: Colors.green,
-              icon:
-              Icons.access_time_rounded,
-              screen: LowPriorityScreen(),
-            ),
-
 
             SizedBox(height: 10),
 
