@@ -54,15 +54,23 @@ class _GroubScreenState extends State<GroubScreen> {
 
   double countHighPriorityTasks(List<TaskModel> tasks, String priority) {
 
-
     final highTasks = tasks
-        .where((task) => task.priority == priority&&task.isCompleted==false)
+        .where((task) => task.priority == priority)
         .toList();
-    print(highTasks);
 
-    return tasks.isEmpty
-        ? 0.0
-        : highTasks.length / tasks.length;
+    final priorityTasks = tasks
+        .where((task) => task.priority == priority)
+        .toList();
+
+    final completedTasks = priorityTasks
+        .where((task) => task.isCompleted)
+        .toList();
+
+    if (highTasks.isEmpty) {
+      return 0.0;
+    }
+
+    return completedTasks.length / highTasks.length;
 
   }
 
@@ -233,9 +241,13 @@ class _GroubScreenState extends State<GroubScreen> {
                   stream: taskStream,
                   builder: (context, snapshot) {
                     final tasks = snapshot.data ?? [];
-                    final highPriorityTasks = tasks
-                        .where((task) => task.priority == priority && task.isCompleted==false)
+                    final highTasks = tasks
+                        .where((task) => task.priority == priority)
                         .toList();
+                    final completedTasks = highTasks
+                        .where((task) => task.isCompleted)
+                        .toList();
+
                     return Row(
                       mainAxisAlignment:
                       MainAxisAlignment.spaceBetween,
@@ -243,7 +255,7 @@ class _GroubScreenState extends State<GroubScreen> {
 
                       children: [
                         Text(
-                          "${highPriorityTasks.length}",
+                          "${highTasks.length}",
                           style: TextStyle(
                             fontWeight:
                             FontWeight.w600,
@@ -251,7 +263,9 @@ class _GroubScreenState extends State<GroubScreen> {
                         ),
                         SizedBox(width: 250),
                         Text(
-                          "${(highPriorityTasks.length / tasks.length * 100).toStringAsFixed(0)}%",
+                        highTasks.isEmpty
+                    ? "0%"
+                        : "${((completedTasks.length / highTasks.length) * 100).toStringAsFixed(0)}%",
                           style: TextStyle(
                             color: Colors.grey,
                             fontWeight:
