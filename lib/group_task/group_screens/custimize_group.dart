@@ -178,7 +178,9 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
               stream: taskStream,
 
               builder: (context, snapshot) {
-                var tasks = snapshot.data ?? [];
+                final tasks = (snapshot.data ?? [])
+                    .where((task) => !task.isCompleted)
+                    .toList();
 
                 if (tasks.isEmpty) {
                   return const Center(
@@ -218,9 +220,22 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
                         Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              IconButton(onPressed: (){
-                                changestatues(task);
-                              }, icon: Icon(
+                              IconButton(onPressed: () async {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Task Completed'),
+                                    backgroundColor: Colors.green,
+                                    duration: Duration(seconds: 1),
+
+                                  ),
+                                );
+                                await Future.delayed(const Duration(seconds: 1));
+
+                                await changestatues(task);
+
+
+                              },
+                                icon: Icon(
                                 task.isCompleted
                                     ? Icons.check_circle
                                     : Icons.check_circle_outline,

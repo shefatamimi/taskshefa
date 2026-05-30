@@ -27,7 +27,7 @@ class _MyTasksState extends State<MyTasks> {
 
   final color_completed = Colors.grey;
 
-  void changeStatus(TaskModel task) {
+   Future<void> changeStatus(TaskModel task) async {
     final updatedTask = TaskModel(
       id: task.id,
       title: task.title,
@@ -235,7 +235,9 @@ class _MyTasksState extends State<MyTasks> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                final tasks = snapshot.data ?? [];
+                final tasks = (snapshot.data ?? [])
+                    .where((task) => !task.isCompleted)
+                    .toList();
 
                 if (tasks.isEmpty) {
                   return const Center(child: Text('No tasks found'));
@@ -267,9 +269,20 @@ class _MyTasksState extends State<MyTasks> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                         IconButton(
-                          onPressed: () {
-                            changeStatus(task);
-                            updateTask(task);
+                          onPressed: () async {{
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Task Completed'),
+                                backgroundColor: Colors.green,
+                                duration: Duration(seconds: 1),
+
+                              ),
+                            );
+                            await Future.delayed(const Duration(seconds: 1));
+
+                            await changeStatus(task);
+                            }
+
 
                           },
 

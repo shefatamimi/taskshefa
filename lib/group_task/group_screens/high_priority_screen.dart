@@ -118,7 +118,10 @@ Future<void> changestatues(TaskModel task) async {
 
               builder: (context, snapshot) {
                 var tasks = snapshot.data ?? [];
-                tasks = tasks.where((task) => task.priority == 'High').toList();
+                tasks = tasks.where((task) => task.priority == 'High'&&
+                    task.isCompleted == false).toList();
+
+
 
                 if (tasks.isEmpty) {
                   return const Center(
@@ -158,9 +161,21 @@ Future<void> changestatues(TaskModel task) async {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(onPressed: (){
-                              changestatues(task);
-                            }, icon: Icon(
+                            IconButton(onPressed: () async {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Task Completed'),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 1),
+
+                                ),
+                              );
+                              await Future.delayed(const Duration(seconds: 1));
+
+                              await changestatues(task);
+
+                            },
+                              icon: Icon(
                               task.isCompleted
                                   ? Icons.check_circle
                                   : Icons.check_circle_outline,

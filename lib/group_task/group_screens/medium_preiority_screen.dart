@@ -114,7 +114,8 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
 
               builder: (context, snapshot) {
                 var tasks = snapshot.data ?? [];
-                tasks = tasks.where((task) => task.priority == 'Medium').toList();
+                tasks = tasks.where((task) => task.priority == 'Medium'&&
+                    task.isCompleted == false).toList();
 
                 if (tasks.isEmpty) {
                   return const Center(
@@ -146,10 +147,19 @@ class _MediumPreiorityScreenState extends State<MediumPreiorityScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(onPressed: (){
-                              changestatues(task);
+                            IconButton(onPressed: () async {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Task Completed'),
+                                  backgroundColor: Colors.green,
+                                  duration: Duration(seconds: 1),
 
-                    }, icon: Icon(
+                                    ),
+                                );
+                                await Future.delayed(const Duration(seconds: 1));
+                                await changestatues(task);
+                    },
+                              icon: Icon(
                               task.isCompleted
                                   ? Icons.check_circle
                                   : Icons.check_circle_outline,
