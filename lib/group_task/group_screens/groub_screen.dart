@@ -331,6 +331,7 @@ class _GroubScreenState extends State<GroubScreen> {
           onPressed: () {
             Navigator.push(
               context,
+
               MaterialPageRoute(
                 builder: (context) =>
                     SettingScreen(),

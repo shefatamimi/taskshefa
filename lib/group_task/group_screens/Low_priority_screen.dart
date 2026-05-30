@@ -119,7 +119,7 @@ class _LowPriorityScreenState extends State<LowPriorityScreen> {
 
                 if (tasks.isEmpty) {
                   return const Center(
-                    child: Text('No High Priority Tasks'),
+                    child: Text('No Low Priority Tasks'),
                   );
                 }
                 if (snapshot.connectionState == ConnectionState.waiting) {

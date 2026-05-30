@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:task_shefa/screens/navigator_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/add_task.dart';
+import 'package:task_shefa/task/task_screen/edit_task_screen.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
@@ -331,7 +332,13 @@ class _MyTasksState extends State<MyTasks> {
                         ),
                             IconButton(
                               onPressed: () {
-                                //shefa
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => EditTaskScreen(
+                                        task: task,
+                                      ))
+                                );
 
                               }, icon: Icon(
                                 Icons.edit,
