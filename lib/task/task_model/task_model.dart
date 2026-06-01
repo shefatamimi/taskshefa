@@ -22,6 +22,7 @@ class TaskModel {
     this.alert = 'None',
   });
 
+// for read from firebase database
   factory TaskModel.fromJson(Map<String, dynamic> map) {
 
     return TaskModel(
@@ -48,6 +49,8 @@ class TaskModel {
       alert: map['alert'] ?? 'None',
     );
   }
+  // for write to firebase database
+
 
   Map<String, dynamic> toMap() {
 

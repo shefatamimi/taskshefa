@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:task_shefa/auth/screen/login_screen.dart';
 import 'package:task_shefa/setting/screens/about_app_screen.dart';
 import 'package:task_shefa/setting/screens/backup_tasks_screen.dart';
+import 'package:task_shefa/setting/screens/export_tasks_screen.dart';
 
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
@@ -440,31 +441,9 @@ class _SettingScreenState extends State<SettingScreen> {
               Center(
                 child: InkWell(
                   onTap: () {
-                    showDialog(context: context, builder: (context) {
-                      return AlertDialog(
-                        title: Text('Sort Tasks'),
-                        content: Text('Select a sorting option:'),
-                        actions: [
-                          TextButton(
-                            onPressed: () async {
-
-
-                              Navigator.pop(context,true);
-                            },
-                            child: Text('sort by date'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-
-
-                              Navigator.pop(context,true);
-                            },
-                            child: Text('sort A-z')
-                          ),
-                        ],
-                      );
-                    },
-
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ExportTasksScreen()),
                     );
                   },
 
@@ -496,7 +475,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8),
-                                child: Text('Tasks Sorting', style: TextStyle(
+                                child: Text('Export Tasks', style: TextStyle(
                                   fontSize: 15,
                                   fontWeight: FontWeight.bold,
                                 ),),
@@ -504,7 +483,7 @@ class _SettingScreenState extends State<SettingScreen> {
                               Padding(
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 8),
-                                child: Text('Newest first', style: TextStyle(
+                                child: Text('Export your tasks', style: TextStyle(
                                   fontSize: 10,
                                 ),),
                               ),
@@ -609,7 +588,24 @@ class _SettingScreenState extends State<SettingScreen> {
                             TextButton(
                               onPressed: () async {
                                 await taskService.deleteAllTasks();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('All tasks deleted'),
+                                    duration: Duration(seconds: 2),
+                                    backgroundColor: Colors.red,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    margin: EdgeInsets.all(10),
+                                    padding: EdgeInsets.all(10),
+
+                                  ),
+
+                                );
                                 Navigator.pop(context);
+
+
 
                               },
                               child: Text('Delete'),
