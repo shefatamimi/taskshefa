@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/group_task/group_model/group_model.dart';
@@ -10,13 +9,11 @@ import 'package:task_shefa/group_task/group_service/group_service.dart';
 import 'package:task_shefa/setting/screens/setting_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
-import 'package:task_shefa/users/models/user_models.dart';
-import 'package:task_shefa/users/service/user_service.dart';
 
 class GroubScreen extends StatefulWidget {
-  final String groupId;
-  const GroubScreen({super.key, required this.groupId});
+  const GroubScreen({super.key});
 
   @override
   State<GroubScreen> createState() => _GroubScreenState();
@@ -26,111 +23,521 @@ class _GroubScreenState extends State<GroubScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
-  final TaskService taskService = TaskService();
-  final UserService userService = UserService();
-  final FirebaseAuth auth = FirebaseAuth.instance;
+  final TaskService _taskService = TaskService();
+  final GroupService _groupService = GroupService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  UserModel? userModel;
-
-  late Stream<List<TaskModel>> taskStream;
-  late Stream<List<GroupModel>> groupsStream;
-
-  final date = DateTime.now();
-
-  late final user = auth.currentUser;
-  late final String userId = user!.uid;
-  final List _tasks = [];
-
-  Future<void> loadUser() async {
-    final user = await userService.getUser(userId);
-
-    if (!mounted) return;
-
-    setState(() {
-      userModel = user;
-    });
-  }
-
-
-  double countHighPriorityTasks(List<TaskModel> tasks, String priority) {
-
-
-    final highTasks = tasks
-        .where((task) => task.priority == priority&&task.isCompleted==false)
-        .toList();
-    print(highTasks);
-
-    return tasks.isEmpty
-        ? 0.0
-        : highTasks.length / tasks.length;
-
-  }
-
-
-
-
+  late Stream<List<TaskModel>> _taskStream;
+  late Stream<List<GroupModel>> _groupsStream;
+  late String _userId;
 
   @override
   void initState() {
     super.initState();
+    final user = _auth.currentUser;
+    if (user == null) {
+      _userId = '';
+      _taskStream = const Stream.empty();
+      _groupsStream = const Stream.empty();
+      return;
+    }
+    _userId = user.uid;
+    _taskStream = _taskService.getTasks(_userId);
+    _groupsStream = _groupService.getGroups(_userId);
+  }
 
-    loadUser();
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
 
-    taskStream = taskService.getTasks(userId);
-    groupsStream = GroupService().getGroups(userId);
-    _tasks.add( taskStream);
+  List<TaskModel> _tasksForPriority(List<TaskModel> tasks, String priority) {
+    return tasks
+        .where((task) => task.priority == priority && !task.isCompleted)
+        .toList();
+  }
 
+  double _priorityProgress(List<TaskModel> tasks, String priority) {
+    if (tasks.isEmpty) return 0;
+    return _tasksForPriority(tasks, priority).length / tasks.length;
+  }
+
+  int _priorityPercent(List<TaskModel> tasks, String priority) {
+    if (tasks.isEmpty) return 0;
+    return (_priorityProgress(tasks, priority) * 100).round();
+  }
+
+  List<TaskModel> _tasksForGroup(List<TaskModel> tasks, String? groupId) {
+    if (groupId == null || groupId.isEmpty) return [];
+    return tasks.where((task) => task.groupId == groupId).toList();
+  }
+
+  double _groupCompletionProgress(List<TaskModel> groupTasks) {
+    if (groupTasks.isEmpty) return 0;
+    final completed =
+        groupTasks.where((task) => task.isCompleted).length;
+    return completed / groupTasks.length;
+  }
+
+  int _openTaskCount(List<TaskModel> tasks) =>
+      tasks.where((t) => !t.isCompleted).length;
+
+  void _showSnackBar(String message, {bool isError = false}) {
+    if (!mounted) return;
+    showGroupTaskSnackBar(context, message, isError: isError);
+  }
+
+  void _clearDialogFields() {
+    _titleController.clear();
+    _descriptionController.clear();
+  }
+
+  Future<void> _showGroupFormDialog({
+    required String title,
+    required String actionLabel,
+    required Future<void> Function() onSubmit,
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: GroupTaskUi.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: GroupTaskUi.textPrimary,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _titleController,
+                  decoration: groupTaskFieldDecoration('Group name', Icons.folder_outlined),
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: groupTaskFieldDecoration(
+                    'Description (optional)',
+                    Icons.notes_outlined,
+                  ),
+                  maxLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _clearDialogFields();
+                          Navigator.pop(dialogContext);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: GroupTaskUi.textSecondary,
+                          side: const BorderSide(color: GroupTaskUi.divider),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                          ),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () async {
+                          try {
+                            await onSubmit();
+                            if (!dialogContext.mounted) return;
+                            Navigator.pop(dialogContext);
+                            _clearDialogFields();
+                          } catch (_) {}
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: GroupTaskUi.primary,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                          ),
+                        ),
+                        child: Text(actionLabel),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void showAddGroupDialog() {
-    showDialog(
+    _clearDialogFields();
+    _showGroupFormDialog(
+      title: 'New group',
+      actionLabel: 'Create',
+      onSubmit: () async {
+        final title = _titleController.text.trim();
+        if (title.isEmpty) {
+          _showSnackBar('Please enter a group title', isError: true);
+          return;
+        }
+        await _groupService.addGroup(
+          GroupModel(
+            id: null,
+            title: title,
+            description: _descriptionController.text.trim(),
+            userId: _userId,
+          ),
+        );
+        _showSnackBar('Group created');
+      },
+    );
+  }
+
+  void _showEditGroupDialog(GroupModel group) {
+    _titleController.text = group.title;
+    _descriptionController.text = group.description;
+    _showGroupFormDialog(
+      title: 'Edit group',
+      actionLabel: 'Save',
+      onSubmit: () async {
+        final title = _titleController.text.trim();
+        if (title.isEmpty) {
+          _showSnackBar('Please enter a group title', isError: true);
+          return;
+        }
+        await _groupService.updateGroup(
+          group.id!,
+          GroupModel(
+            id: group.id,
+            userId: group.userId,
+            title: title,
+            description: _descriptionController.text.trim(),
+          ),
+        );
+        _showSnackBar('Group updated');
+      },
+    );
+  }
+
+  Future<void> _confirmDeleteGroup(GroupModel group) async {
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Add Group"),
-          content: Column(
+      builder: (dialogContext) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(
-                controller: _titleController,
-                decoration: InputDecoration(labelText: "Title"),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: GroupTaskUi.highSoft,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.delete_outline, color: GroupTaskUi.high, size: 28),
               ),
-              TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: "Description"),
+              const SizedBox(height: 16),
+              const Text(
+                'Delete group?',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: GroupTaskUi.textPrimary,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '"${group.title}" will be removed permanently.',
+                textAlign: TextAlign.center,
+                style: const TextStyle(color: GroupTaskUi.textSecondary, height: 1.4),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(dialogContext, false),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                        ),
+                      ),
+                      child: const Text('Cancel'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () => Navigator.pop(dialogContext, true),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: GroupTaskUi.high,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                        ),
+                      ),
+                      child: const Text('Delete'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
+        ),
+      ),
+    );
+    if (confirmed != true || group.id == null) return;
+    try {
+      await _groupService.deleteGroup(group.id!);
+      _showSnackBar('Group deleted');
+    } catch (e) {
+      _showSnackBar('Failed to delete group: $e', isError: true);
+    }
+  }
+
+  Widget _sectionHeader({
+    required String title,
+    required String subtitle,
+    IconData? trailingIcon,
+    VoidCallback? onTrailingTap,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(GroupTaskUi.hPad, 8, GroupTaskUi.hPad, 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: GroupTaskUi.textPrimary,
+                    letterSpacing: -0.4,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: GroupTaskUi.textSecondary,
+                    height: 1.35,
+                  ),
+                ),
+              ],
             ),
-            TextButton(
-        onPressed: () async {
-        try {
-        final newGroup = GroupModel(
-        id: null,
-        title: _titleController.text,
-        description: _descriptionController.text,
-        userId: userId,
-        );
-
-        await GroupService().addGroup(newGroup);
-        Navigator.pop(context);
-
-        print("ADDED SUCCESSFULLY");
-
-        } catch (e) {
-        print("ERROR: $e");
-        }
-        },
-
-        child: Text("Add"),
+          ),
+          if (trailingIcon != null)
+            Material(
+              color: GroupTaskUi.surface,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+              ),
+              elevation: 0,
+              child: InkWell(
+                onTap: onTrailingTap,
+                borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(GroupTaskUi.radiusSm),
+                    border: Border.all(color: GroupTaskUi.divider),
+                  ),
+                  child: Icon(trailingIcon, size: 20, color: GroupTaskUi.textSecondary),
+                ),
+              ),
             ),
-          ],
-        );
-      },
+        ],
+      ),
+    );
+  }
+
+  Widget _progressBar(double value, Color color) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(99),
+      child: SizedBox(
+        height: 6,
+        child: LinearProgressIndicator(
+          value: value.clamp(0.0, 1.0),
+          backgroundColor: GroupTaskUi.divider,
+          valueColor: AlwaysStoppedAnimation<Color>(color),
+        ),
+      ),
+    );
+  }
+
+  Widget _iconBadge({
+    required IconData icon,
+    required List<Color> gradient,
+    double size = 48,
+  }) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradient,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: gradient.last.withValues(alpha: 0.35),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Icon(icon, color: Colors.white, size: size * 0.48),
+    );
+  }
+
+  Widget _modernCard({
+    required Widget child,
+    required Color accent,
+    Color? background,
+    VoidCallback? onTap,
+    EdgeInsetsGeometry margin = const EdgeInsets.symmetric(
+      horizontal: GroupTaskUi.hPad,
+      vertical: 6,
+    ),
+  }) {
+    return Padding(
+      padding: margin,
+      child: Material(
+        color: background ?? GroupTaskUi.surface,
+        elevation: 0,
+        shadowColor: accent.withValues(alpha: 0.2),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+        ),
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+              boxShadow: GroupTaskUi.cardShadow(accent),
+              border: Border.all(
+                color: accent.withValues(alpha: 0.08),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _statChip(String label, String value, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(99),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '$value $label',
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: color.withValues(alpha: 0.95),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOverviewCard(List<TaskModel> tasks) {
+    final open = _openTaskCount(tasks);
+    final done = tasks.length - open;
+
+    return Container(
+      margin: const EdgeInsets.fromLTRB(GroupTaskUi.hPad, 4, GroupTaskUi.hPad, 16),
+      padding: const EdgeInsets.all(22),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [GroupTaskUi.primary, GroupTaskUi.primaryDark],
+        ),
+        borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+        boxShadow: GroupTaskUi.cardShadow(GroupTaskUi.primary),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Your workspace',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '${tasks.length} total tasks',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _statChip('open', '$open', Colors.white),
+              const SizedBox(width: 8),
+              _statChip('done', '$done', const Color(0xFFB8C4FF)),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -138,158 +545,340 @@ class _GroubScreenState extends State<GroubScreen> {
     required String title,
     required String description,
     required Color color,
+    required Color softColor,
+    required List<Color> gradient,
     required IconData icon,
     required Widget screen,
     required String priority,
   }) {
-    return InkWell(
+    return _modernCard(
+      accent: color,
+      background: softColor,
       onTap: () {
         Navigator.push(
           context,
+          MaterialPageRoute(builder: (context) => screen),
+        );
+      },
+      child: StreamBuilder<List<TaskModel>>(
+        stream: _taskStream,
+        builder: (context, snapshot) {
+          final tasks = snapshot.data ?? [];
+          final priorityTasks = _tasksForPriority(tasks, priority);
+          final percent = _priorityPercent(tasks, priority);
+          final progress = _priorityProgress(tasks, priority);
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  _iconBadge(icon: icon, gradient: gradient),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: GroupTaskUi.textPrimary,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                        const SizedBox(height: 3),
+                        Text(
+                          description,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: GroupTaskUi.textSecondary,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                    child: Text(
+                      '$percent%',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: color,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
+                  Icon(
+                    Icons.chevron_right_rounded,
+                    color: color.withValues(alpha: 0.7),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${priorityTasks.length} open tasks',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: GroupTaskUi.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              _progressBar(progress, color),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGroupCard(GroupModel group, List<TaskModel> allTasks) {
+    final groupTasks = _tasksForGroup(allTasks, group.id);
+    final completionPercent =
+        (_groupCompletionProgress(groupTasks) * 100).round();
+    final progress = _groupCompletionProgress(groupTasks);
+
+    return _modernCard(
+      accent: GroupTaskUi.group,
+      background: GroupTaskUi.groupSoft,
+      onTap: () {
+        if (group.id == null) return;
+        Navigator.push(
+          context,
           MaterialPageRoute(
-            builder: (context) => screen,
+            builder: (context) => CustimizeGroup(groupId: group.id!),
           ),
         );
       },
-      child: Container(
-        margin: EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 10,
-        ),
-        padding: EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: color,
-            width: 2,
-          ),
-          color: Color(0xFFFFF5F5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment:
-              CrossAxisAlignment.start,
-              children: [
-                Container(
-                  height: 55,
-                  width: 55,
-                  decoration: BoxDecoration(
-                    color: color,
-                    borderRadius:
-                    BorderRadius.circular(12),
-                  ),
-                  child: Icon(
-                    icon,
-                    color: Colors.white,
-                  ),
-                ),
-
-                SizedBox(width: 12),
-
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment:
-                    CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight:
-                          FontWeight.bold,
-                          color: color,
-                        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _iconBadge(
+                icon: Icons.folder_rounded,
+                gradient: const [GroupTaskUi.group, Color(0xFF6D28D9)],
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      group.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: GroupTaskUi.textPrimary,
                       ),
-
-                      SizedBox(height: 4),
-
+                    ),
+                    if (group.description.isNotEmpty) ...[
+                      const SizedBox(height: 4),
                       Text(
-                        "Important tasks that need immediate attention",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.black54,
+                        group.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: GroupTaskUi.textSecondary,
+                          height: 1.35,
                         ),
                       ),
                     ],
-                  ),
+                  ],
                 ),
-
-                Icon(
-                  Icons.arrow_forward_ios,
-                  size: 18,
-                  color: Colors.grey,
+              ),
+              _groupActionButton(
+                icon: Icons.edit_outlined,
+                color: GroupTaskUi.primary,
+                onPressed: () => _showEditGroupDialog(group),
+              ),
+              const SizedBox(width: 4),
+              _groupActionButton(
+                icon: Icons.delete_outline,
+                color: GroupTaskUi.high,
+                onPressed: () => _confirmDeleteGroup(group),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${groupTasks.length} tasks',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: GroupTaskUi.textSecondary,
                 ),
-              ],
-            ),
+              ),
+              Text(
+                '$completionPercent% complete',
+                style: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: GroupTaskUi.group,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          _progressBar(progress, GroupTaskUi.group),
+        ],
+      ),
+    );
+  }
 
-            SizedBox(height: 16),
+  Widget _groupActionButton({
+    required IconData icon,
+    required Color color,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: color.withValues(alpha: 0.1),
+      borderRadius: BorderRadius.circular(10),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(10),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(icon, size: 20, color: color),
+        ),
+      ),
+    );
+  }
 
-            Row(
+  Widget _buildTotalTasksCard() {
+    return _modernCard(
+      accent: GroupTaskUi.primary,
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const MyTasks()),
+        );
+      },
+      child: StreamBuilder<List<TaskModel>>(
+        stream: _taskStream,
+        builder: (context, snapshot) {
+          final tasks = snapshot.data ?? [];
+          final open = _openTaskCount(tasks);
 
-              children: [
-                StreamBuilder<List<TaskModel>>(
-                  stream: taskStream,
-                  builder: (context, snapshot) {
-                    final tasks = snapshot.data ?? [];
-                    final highPriorityTasks = tasks
-                        .where((task) => task.priority == priority && task.isCompleted==false)
-                        .toList();
-                    return Row(
-                      mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-
-
-                      children: [
-                        Text(
-                          "${highPriorityTasks.length}",
-                          style: TextStyle(
-                            fontWeight:
-                            FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(width: 230),
-                        Text(
-                          "${(highPriorityTasks.length / tasks.length * 100).toStringAsFixed(0)}%",
-                          style: TextStyle(
-                            color: Colors.grey,
-                            fontWeight:
-                            FontWeight.bold,
-                          ),
-                        ),
-
-                      ],
-                    );
-
-
-                  },
-
-
-                )
-              ],
-            ),
-
-            SizedBox(height: 8),
-
-            StreamBuilder<List<TaskModel>>(
-              stream: taskStream,
-              builder: (context, snapshot) {
-
-                final tasks = snapshot.data ?? [];
-
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: LinearProgressIndicator(
-                    value: countHighPriorityTasks(tasks, priority),
-                    minHeight: 8,
-                    backgroundColor: Colors.grey.shade300,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      color,
+          return Row(
+            children: [
+              _iconBadge(
+                icon: Icons.checklist_rounded,
+                gradient: const [GroupTaskUi.primary, GroupTaskUi.primaryDark],
+                size: 52,
+              ),
+              const SizedBox(width: 16),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'All tasks',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: GroupTaskUi.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      'View everything in one place',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: GroupTaskUi.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                children: [
+                  Text(
+                    '${tasks.length}',
+                    style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                      color: GroupTaskUi.primary,
+                      height: 1,
                     ),
                   ),
-                );
-              },
+                  Text(
+                    '$open open',
+                    style: const TextStyle(
+                      fontSize: 11,
+                      color: GroupTaskUi.textSecondary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.chevron_right_rounded,
+                color: GroupTaskUi.primary,
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildEmptyGroupsHint() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: GroupTaskUi.hPad, vertical: 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: GroupTaskUi.surface,
+          borderRadius: BorderRadius.circular(GroupTaskUi.radiusMd),
+          border: Border.all(
+            color: GroupTaskUi.divider,
+            style: BorderStyle.solid,
+          ),
+        ),
+        child: Column(
+          children: [
+            Icon(
+              Icons.create_new_folder_outlined,
+              size: 36,
+              color: GroupTaskUi.textSecondary.withValues(alpha: 0.6),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              'No custom groups yet',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: GroupTaskUi.textPrimary,
+              ),
+            ),
+            const SizedBox(height: 4),
+            const Text(
+              'Tap + to organize tasks into folders',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12, color: GroupTaskUi.textSecondary),
             ),
           ],
         ),
@@ -297,541 +886,206 @@ class _GroubScreenState extends State<GroubScreen> {
     );
   }
 
-
   @override
   Widget build(BuildContext context) {
+    final topPadding = MediaQuery.paddingOf(context).top;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Task Group'),
-        backgroundColor: Colors.blueGrey,
+      backgroundColor: GroupTaskUi.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: showAddGroupDialog,
+        elevation: 4,
+        backgroundColor: GroupTaskUi.primary,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            onPressed: () {},
-            icon: Icon(
-              Icons.notifications_none_sharp,
-            ),
-          ),
-        ],
-        leading: IconButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    SettingScreen(),
-              ),
-            );
-          },
-          icon: Icon(Icons.menu),
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'New group',
+          style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        centerTitle: true,
       ),
-
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 10),
-
-            Padding(
-              padding: EdgeInsets.only(
-                left: 10,
-                top: 10,
-              ),
-              child: Text(
-                'Your Task by Priority',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight:
-                  FontWeight.bold,
-                  color: Colors.black87,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Container(
+              decoration: const BoxDecoration(
+                color: GroupTaskUi.surface,
+                borderRadius: BorderRadius.vertical(
+                  bottom: Radius.circular(28),
                 ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x0A000000),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
               ),
-            ),
-
-            Padding(
-              padding:
-              const EdgeInsets.only(
-                left: 10,
-                top: 5,
-              ),
-              child: Text(
-                'Organize and track your tasks by priority level.',
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            buildPriorityCard(
-              title: "High Priority",
-              description:
-              "Important tasks",
-              color: Colors.red,
-              icon: Icons.flag,
-              screen: HighPriorityScreen(),
-              priority: 'High',
-
-            ),
-
-            buildPriorityCard(
-              title: "Medium Priority",
-              description:
-              "Important tasks",
-              color: Colors.orange,
-              icon:
-              Icons.access_time_rounded,
-              screen:
-              MediumPreiorityScreen(),
-              priority: 'Medium',
-
-            ),
-
-            buildPriorityCard(
-              title: "Low Priority",
-              description:
-              "Important tasks",
-              color: Colors.green,
-              icon:
-              Icons.access_time_rounded,
-              screen: LowPriorityScreen(),
-              priority: 'Low',
-            ),
-
-            SizedBox(height: 10),
-
-            StreamBuilder<List<GroupModel>>(
-              stream: groupsStream,
-              builder:
-                  (context, snapshot) {
-                if (!snapshot.hasData ||
-                    snapshot.data!.isEmpty) {
-                  return SizedBox();
-                }
-
-                final groups =
-                snapshot.data!;
-
-
-                return Column(
-                  children:
-                  groups.map((group) {
-                    return InkWell(
-                      onTap: () {
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(
+                  GroupTaskUi.hPad,
+                  topPadding + 12,
+                  GroupTaskUi.hPad,
+                  20,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Dashboard',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: GroupTaskUi.textSecondary,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            'Task overview',
+                            style: TextStyle(
+                              fontSize: 28,
+                              fontWeight: FontWeight.w800,
+                              color: GroupTaskUi.textPrimary,
+                              letterSpacing: -0.8,
+                              height: 1.1,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    _headerIconButton(
+                      icon: Icons.notifications_none_rounded,
+                      onPressed: () {},
+                    ),
+                    const SizedBox(width: 8),
+                    _headerIconButton(
+                      icon: Icons.settings_outlined,
+                      onPressed: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) =>
-                            CustimizeGroup(
-                              groupId: group.id!,
-                            ),
-                          ),
-
-                        );
-                        GroupService()
-                            .updateGroup(
-                          group.id!,
-                          GroupModel(
-                            id: group.id,
-                            userId: group.userId,
-                            title: group.title,
-                            description: group.description,
+                            builder: (context) => const SettingScreen(),
                           ),
                         );
                       },
-                      child: Container(
-                        margin:
-                        EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 10,
-                        ),
-                        padding:
-                        EdgeInsets.all(16),
-                        decoration:
-                        BoxDecoration(
-                          borderRadius:
-                          BorderRadius
-                              .circular(20),
-                          border: Border.all(
-                            color:
-                            Colors.purple,
-                            width: 2,
-                          ),
-                          color:
-                          Color(0xFFF7F5FF),
-                        ),
-                        child: Row(
-                          crossAxisAlignment:
-                          CrossAxisAlignment
-                              .start,
-                          children: [
-                            Container(
-                              height: 55,
-                              width: 55,
-                              decoration:
-                              BoxDecoration(
-                                color: Colors
-                                    .purple,
-                                borderRadius:
-                                BorderRadius
-                                    .circular(
-                                    12),
-                              ),
-                              child: Icon(
-                                Icons.folder,
-                                color:
-                                Colors.white,
-                              ),
-
-                            ),
-
-
-
-
-                            SizedBox(
-                                width: 12),
-
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment:
-                                CrossAxisAlignment
-                                    .start,
-                                children: [
-                                  Text(
-                                    group.title,
-                                    style:
-                                    TextStyle(
-                                      fontSize:
-                                      18,
-                                      fontWeight:
-                                      FontWeight
-                                          .bold,
-                                    ),
-                                  ),
-
-                                  SizedBox(
-                                      height:
-                                      4),
-
-                                  Text(
-                                    group
-                                        .description,
-                                    style:
-                                    TextStyle(
-                                      fontSize:
-                                      13,
-                                      color: Colors
-                                          .black54,
-                                    ),
-                                  ),
-
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
-
-
-                                    children: [
-                                      IconButton(
-                                        onPressed: () {
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) {
-                                              return AlertDialog(
-                                                title: Text("Edit Group"),
-                                                content: Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    TextField(
-
-                                                      controller: _titleController,
-
-                                                      decoration: InputDecoration(labelText: "title"),
-                                                    ),
-                                                    TextField(
-                                                      controller: _descriptionController,
-
-                                                      decoration: InputDecoration(labelText: "Description"),
-                                                    ),
-                                                  ],
-                                                ),
-
-
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(context);
-                                                    },
-                                                    child: Text("Cancel"),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () async {
-                                                      try {
-                                                        final updatedGroup = GroupModel(
-                                                          id: group.id,
-                                                          userId: group.userId,
-                                                          title: _titleController.text,
-                                                          description: _descriptionController.text,
-                                                        );
-                                                        await GroupService().updateGroup(
-                                                          group.id!,
-                                                          updatedGroup,
-                                                        );
-                                                        Navigator.pop(context);
-                                                      } catch (e) {
-                                                        print("ERROR: $e");
-                                                      }
-                                                    },
-                                                    child: Text("Save"),
-
-                                                  )
-
-                                                ],
-                                              );
-                                            },
-                                          );
-                                          GroupService()
-                                              .updateGroup(
-                                            group.id!,
-                                            GroupModel(
-                                              id: group.id,
-                                              userId: group.userId,
-                                              title: group.title,
-                                              description: group.description,
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.edit,
-                                          color: Colors.blue,
-                                          size: 30,
-                                        ),
-                                      ),
-                                      IconButton(
-
-                                        onPressed: () {
-                                          GroupService()
-                                              .deleteGroup(
-                                            group.id!,
-                                          );
-                                        },
-                                        icon: Icon(
-                                          Icons.delete,
-                                          color: Colors.red,
-                                          size: 30,
-
-                                        ),
-                                      ),
-
-
-                                    ],
-                                  ),
-
-                                  Row(
-                                    mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "8 Tasks",
-                                        style: TextStyle(
-                                          fontWeight:
-                                          FontWeight.w600,
-                                        ),
-                                      ),
-
-                                      Text(
-                                        "80%",
-                                        style: TextStyle(
-                                          color: Colors.grey,
-                                          fontWeight:
-                                          FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-
-                                  SizedBox(height: 8),
-
-                                  ClipRRect(
-                                    borderRadius:
-                                    BorderRadius.circular(10),
-                                    child: LinearProgressIndicator(
-                                      value: 0.8,
-                                      minHeight: 8,
-                                      backgroundColor:
-                                      Colors.grey.shade300,
-                                      valueColor:
-                                      AlwaysStoppedAnimation<Color>(
-                                        Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-
-
-
-                                ],
-
-                              ),
-                            ),
-
-                            Icon(
-                              Icons
-                                  .arrow_forward_ios,
-                              size: 18,
-                              color:
-                              Colors.grey,
-                            ),
-
-
-
-                          ],
-                        ),
-
-
-                      ),
-                    );
-                  }).toList(),
-
-                );
-              },
-            ),
-
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        MyTasks(
-
-                        ),
-                  ),
-                );
-              },
-              child: Container(
-                margin: EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 10,
-                ),
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  borderRadius:
-                  BorderRadius.circular(
-                      20),
-                  border: Border.all(
-                    color: Colors.blueAccent,
-                    width: 2,
-                  ),
-                  color: Color(0xFFFFF5F5),
-                ),
-                child: Column(
-                  crossAxisAlignment:
-                  CrossAxisAlignment
-                      .start,
-                  children: [
-                    Row(
-                      crossAxisAlignment:
-                      CrossAxisAlignment
-                          .start,
-                      children: [
-                        Container(
-                          height: 55,
-                          width: 55,
-                          decoration:
-                          BoxDecoration(
-                            color: Colors.blue,
-                            borderRadius:
-                            BorderRadius
-                                .circular(
-                                12),
-                          ),
-                          child: Icon(
-                            Icons.task,
-                            color:
-                            Colors.white,
-                          ),
-                        ),
-
-                        SizedBox(width: 12),
-
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment:
-                            CrossAxisAlignment
-                                .start,
-                            children: [
-                              Text(
-                                "Total Tasks",
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  18,
-                                  fontWeight:
-                                  FontWeight
-                                      .bold,
-                                  color: Colors
-                                      .black87,
-                                ),
-                              ),
-
-                              SizedBox(
-                                  height: 4),
-
-                              Text(
-                                "All tasks across all priorities",
-                                style:
-                                TextStyle(
-                                  fontSize:
-                                  13,
-                                  color: Colors
-                                      .black54,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        SizedBox(width: 12),
-
-                        StreamBuilder<List<TaskModel>>(
-                          stream: taskStream,
-
-                          builder: (context, snapshot) {
-
-                            final tasks = snapshot.data ?? [];
-
-                            return CircleAvatar(
-                              radius: 30,
-                              backgroundColor: Colors.blue,
-                              child: Text(
-                                "${tasks.length}",
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-
-
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
+          ),
+          SliverToBoxAdapter(
+            child: StreamBuilder<List<TaskModel>>(
+              stream: _taskStream,
+              builder: (context, snapshot) {
+                final tasks = snapshot.data ?? [];
+                return _buildOverviewCard(tasks);
+              },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _sectionHeader(
+              title: 'By priority',
+              subtitle: 'Focus on what matters most',
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: buildPriorityCard(
+              title: 'High priority',
+              description: 'Needs immediate attention',
+              color: GroupTaskUi.high,
+              softColor: GroupTaskUi.highSoft,
+              gradient: const [GroupTaskUi.high, Color(0xFFE63946)],
+              icon: Icons.flag_rounded,
+              screen: const HighPriorityScreen(),
+              priority: 'High',
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: buildPriorityCard(
+              title: 'Medium priority',
+              description: 'Complete soon',
+              color: GroupTaskUi.medium,
+              softColor: GroupTaskUi.mediumSoft,
+              gradient: const [GroupTaskUi.medium, Color(0xFFE67E22)],
+              icon: Icons.schedule_rounded,
+              screen: const MediumPreiorityScreen(),
+              priority: 'Medium',
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: buildPriorityCard(
+              title: 'Low priority',
+              description: 'Schedule for later',
+              color: GroupTaskUi.low,
+              softColor: GroupTaskUi.lowSoft,
+              gradient: const [GroupTaskUi.low, Color(0xFF1ABC9C)],
+              icon: Icons.trending_down_rounded,
+              screen: const LowPriorityScreen(),
+              priority: 'Low',
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: _sectionHeader(
+              title: 'Your groups',
+              subtitle: 'Custom folders for your tasks',
+            ),
+          ),
+          StreamBuilder<List<GroupModel>>(
+            stream: _groupsStream,
+            builder: (context, groupSnapshot) {
+              if (!groupSnapshot.hasData || groupSnapshot.data!.isEmpty) {
+                return SliverToBoxAdapter(child: _buildEmptyGroupsHint());
+              }
+              return StreamBuilder<List<TaskModel>>(
+                stream: _taskStream,
+                builder: (context, taskSnapshot) {
+                  final tasks = taskSnapshot.data ?? [];
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        return _buildGroupCard(
+                          groupSnapshot.data![index],
+                          tasks,
+                        );
+                      },
+                      childCount: groupSnapshot.data!.length,
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+          SliverToBoxAdapter(
+            child: _sectionHeader(
+              title: 'Quick access',
+              subtitle: 'See every task in one list',
+            ),
+          ),
+          SliverToBoxAdapter(child: _buildTotalTasksCard()),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
       ),
+    );
+  }
 
-      floatingActionButton:
-      FloatingActionButton(
-        onPressed: () {
-          showAddGroupDialog();
-        },
-        child: const Icon(Icons.add),
+  Widget _headerIconButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
+    return Material(
+      color: GroupTaskUi.background,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: SizedBox(
+          width: 44,
+          height: 44,
+          child: Icon(icon, color: GroupTaskUi.textPrimary, size: 22),
+        ),
       ),
     );
   }

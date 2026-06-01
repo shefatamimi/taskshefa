@@ -1,13 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:task_shefa/group_task/group_model/group_model.dart';
-import 'package:task_shefa/group_task/group_service/group_service.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
-import 'package:task_shefa/users/models/user_models.dart';
-import 'package:task_shefa/users/service/user_service.dart';
+
 class CustimizeGroup extends StatefulWidget {
   final String groupId;
+
   const CustimizeGroup({super.key, required this.groupId});
 
   @override
@@ -17,29 +16,171 @@ class CustimizeGroup extends StatefulWidget {
 class _CustimizeGroupState extends State<CustimizeGroup> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
-  final TaskService taskService = TaskService();
-  final auth = FirebaseAuth.instance;
-  late final user = auth.currentUser;
-  final UserService userService = UserService();
-  late String userId = user!.uid;
-  final GroupService groupService = GroupService();
-  late GroupModel group;
-  late String groupId = widget.groupId;
+  final TaskService _taskService = TaskService();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
+  late Stream<List<TaskModel>> _taskStream;
+  late String _userId;
 
-
-  UserModel? userModel;
-  late Stream<List<TaskModel>> taskStream;
-  final date = DateTime.now();
-  Future<void> loadUser() async {
-    final user = await userService.getUser(userId);
-    if (!mounted) return;
-    setState(() {
-      userModel = user;
-    });
+  @override
+  void initState() {
+    super.initState();
+    final user = _auth.currentUser;
+    if (user == null) {
+      _userId = '';
+      _taskStream = const Stream.empty();
+      return;
+    }
+    _userId = user.uid;
+    _taskStream = _taskService.getTasksByGroup(_userId, widget.groupId);
   }
-  Future<void> changestatues(TaskModel task) async {
-    final updatedTask = TaskModel(
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descriptionController.dispose();
+    super.dispose();
+  }
+
+  void _clearFields() {
+    _titleController.clear();
+    _descriptionController.clear();
+  }
+
+  Future<void> _showAddTaskDialog() async {
+    _clearFields();
+    await showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: GroupTaskUi.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 28, 24, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'New task',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.w700,
+                    color: GroupTaskUi.textPrimary,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _titleController,
+                  decoration: groupTaskFieldDecoration(
+                    'Task title',
+                    Icons.task_alt_outlined,
+                  ),
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 14),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: groupTaskFieldDecoration(
+                    'Description (optional)',
+                    Icons.notes_outlined,
+                  ),
+                  maxLines: 2,
+                  textCapitalization: TextCapitalization.sentences,
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          _clearFields();
+                          Navigator.pop(dialogContext);
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: GroupTaskUi.textSecondary,
+                          side: const BorderSide(color: GroupTaskUi.divider),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(GroupTaskUi.radiusSm),
+                          ),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: FilledButton(
+                        onPressed: () async {
+                          final title = _titleController.text.trim();
+                          if (title.isEmpty) {
+                            showGroupTaskSnackBar(
+                              dialogContext,
+                              'Please enter a task title',
+                              isError: true,
+                            );
+                            return;
+                          }
+                          try {
+                            await _taskService.addTask(
+                              TaskModel(
+                                id: null,
+                                title: title,
+                                description:
+                                    _descriptionController.text.trim(),
+                                dueDate: DateTime.now(),
+                                priority: 'None',
+                                isCompleted: false,
+                                userId: _userId,
+                                groupId: widget.groupId,
+                                alert: '',
+                              ),
+                            );
+                            if (!dialogContext.mounted) return;
+                            Navigator.pop(dialogContext);
+                            _clearFields();
+                            if (!mounted) return;
+                            showGroupTaskSnackBar(context, 'Task added');
+                          } catch (e) {
+                            if (!dialogContext.mounted) return;
+                            showGroupTaskSnackBar(
+                              dialogContext,
+                              'Failed to add task: $e',
+                              isError: true,
+                            );
+                          }
+                        },
+                        style: FilledButton.styleFrom(
+                          backgroundColor: GroupTaskUi.group,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(GroupTaskUi.radiusSm),
+                          ),
+                        ),
+                        child: const Text('Add'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  List<TaskModel> _openTasks(List<TaskModel> tasks) =>
+      tasks.where((t) => !t.isCompleted).toList();
+
+  Future<void> _toggleComplete(TaskModel task) async {
+    final updated = TaskModel(
       id: task.id,
       title: task.title,
       description: task.description,
@@ -50,221 +191,107 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
       alert: task.alert,
       groupId: task.groupId,
     );
-    await taskService.updateTask(task.id!, updatedTask);
-  }
-  Future<void> deleteTask(String taskId) async {
-    await taskService.deleteTask(taskId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Task deleted successfully')),
+    await _taskService.updateTask(task.id!, updated);
+    if (!mounted) return;
+    showGroupTaskSnackBar(
+      context,
+      task.isCompleted ? 'Task marked incomplete' : 'Task completed',
     );
   }
-  void showAddGroupDialog() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text("Add Task"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _titleController,
-                decoration: InputDecoration(labelText: "Title"),
-              ),
-              TextField(
-                controller: _descriptionController,
-                decoration: InputDecoration(labelText: "Description"),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
-            ),
-            TextButton(
-              onPressed
-              : () async {
-                try {
 
-                  final newTask = TaskModel(
-                    id: null,
-                    title: _titleController.text,
-                    description: _descriptionController.text,
-                    dueDate: date,
-                    priority: 'None',
-                    isCompleted: false,
-                    userId: userId,
-                    groupId: widget.groupId,
-                    alert: '',
-                  );
-                  await taskService.addTask(newTask);
-                  Navigator.pop(context);
-                  print("ADDED SUCCESSFULLY");
-                } catch (e) {
-                  print("ERROR: $e");
-                }
-              }
-              ,
-              child: Text("Add"),
-            ),
-          ],
-        );
-      },
-    );
-
-  }
-  @override
-  void initState()
-  {
-    super.initState();
-    final user = auth.currentUser;
-    if (user == null) {
-      taskStream = const Stream.empty();
-      userId = "";
-      return;
+  Future<void> _deleteTask(TaskModel task) async {
+    final confirmed = await showDeleteTaskDialog(context, task.title);
+    if (confirmed != true || task.id == null) return;
+    try {
+      await _taskService.deleteTask(task.id!);
+      if (!mounted) return;
+      showGroupTaskSnackBar(context, 'Task deleted');
+    } catch (e) {
+      if (!mounted) return;
+      showGroupTaskSnackBar(context, 'Failed to delete: $e', isError: true);
     }
-    userId = user.uid;
-
-    loadUser();
-    taskStream = taskService.getTasksByGroup(userId, widget.groupId);
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Task Group'),
-        backgroundColor: Colors.blueGrey,
+      backgroundColor: GroupTaskUi.background,
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: _showAddTaskDialog,
+        elevation: 4,
+        backgroundColor: GroupTaskUi.group,
         foregroundColor: Colors.white,
+        icon: const Icon(Icons.add_rounded),
+        label: const Text(
+          'Add task',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
       ),
+      body: StreamBuilder<List<TaskModel>>(
+        stream: _taskStream,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting &&
+              !snapshot.hasData) {
+            return const Center(
+              child: CircularProgressIndicator(color: GroupTaskUi.group),
+            );
+          }
 
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          showAddGroupDialog();
-        },
-        child: const Icon(Icons.add),
-      ),
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Something went wrong',
+                style: TextStyle(color: GroupTaskUi.textSecondary),
+              ),
+            );
+          }
 
-      body: Column(
-        children: [
-          const SizedBox(height: 20),
+          final tasks = _openTasks(snapshot.data ?? []);
 
-          const Padding(
-            padding: EdgeInsets.all(8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Project',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          return CustomScrollView(
+            slivers: [
+              SliverToBoxAdapter(
+                child: GroupTaskListHeader(
+                  eyebrow: 'Group',
+                  title: 'Group tasks',
+                  subtitle: 'Tasks in this folder',
+                  accent: GroupTaskUi.group,
+                  softColor: GroupTaskUi.groupSoft,
+                  gradient: const [GroupTaskUi.group, Color(0xFF6D28D9)],
+                  icon: Icons.folder_rounded,
+                  taskCount: tasks.length,
+                ),
+              ),
+              if (tasks.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: GroupTaskEmptyState(
+                    message: 'No tasks in this group',
+                    hint: 'Tap "Add task" to create your first one',
+                    accent: GroupTaskUi.group,
+                    icon: Icons.folder_open_outlined,
+                  ),
+                )
+              else
+                SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      final task = tasks[index];
+                      return GroupTaskListTile(
+                        task: task,
+                        accent: GroupTaskUi.group,
+                        onComplete: () => _toggleComplete(task),
+                        onDelete: () => _deleteTask(task),
+                      );
+                    },
+                    childCount: tasks.length,
                   ),
                 ),
-                Text(
-                  'See All',
-                  style: TextStyle(color: Colors.blueGrey),
-                ),
-              ],
-            ),
-          ),
-
-          Expanded(
-            child: StreamBuilder<List<TaskModel>>(
-              stream: taskStream,
-
-              builder: (context, snapshot) {
-                final tasks = (snapshot.data ?? [])
-                    .where((task) => !task.isCompleted)
-                    .toList();
-
-                if (tasks.isEmpty) {
-                  return const Center(
-                    child: Text('No Assigned Tasks'),
-                  );
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
-                return ListView.separated(
-                  itemCount: tasks.length,
-                  separatorBuilder: (context, index) => const Divider(),
-                  itemBuilder: (context, index) {
-                    final task = tasks[index];
-
-
-                    return Column(
-                      children: [
-                        SizedBox(height: 20,),
-                        Text(task.dueDate.toString()),
-                        ListTile(
-                          title: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(task.title),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(task.description),
-                          ),
-
-                        ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(onPressed: () async {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Task Completed'),
-                                    backgroundColor: Colors.green,
-                                    duration: Duration(seconds: 1),
-
-                                  ),
-                                );
-                                await Future.delayed(const Duration(seconds: 1));
-
-                                await changestatues(task);
-
-
-                              },
-                                icon: Icon(
-                                task.isCompleted
-                                    ? Icons.check_circle
-                                    : Icons.check_circle_outline,
-                                color:
-                                task.isCompleted
-                                    ? Colors.green
-                                    : Colors.grey,
-                                size: 30,
-                              ),
-                              ),
-                              IconButton(onPressed: (){
-                                deleteTask(task.id!);
-                              }, icon: Icon(Icons.delete)),
-
-                            ]
-                        )
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-        ],
+              const SliverToBoxAdapter(child: SizedBox(height: 100)),
+            ],
+          );
+        },
       ),
-
-
-
     );
-
   }
 }
