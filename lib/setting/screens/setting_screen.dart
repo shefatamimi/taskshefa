@@ -466,7 +466,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     child: Row(
                       children: [
                         SizedBox(width: 10,),
-                        Icon(Icons.filter_list, size: 30,),
+                        Icon(Icons.upload_file_sharp, size: 30,),
 
                         Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
