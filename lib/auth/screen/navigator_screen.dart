@@ -16,7 +16,7 @@ class _NavigatorScreenState extends State<NavigatorScreen> {
   int currentindex = 0;
 
   late final screens = [
-    const GroubScreen(),
+    const GroupScreen(),
     MyTasks(),
     EditProfil(),
   ];

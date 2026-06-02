@@ -5,6 +5,8 @@ import 'package:task_shefa/group_task/group_screens/Low_priority_screen.dart';
 import 'package:task_shefa/group_task/group_screens/custimize_group.dart';
 import 'package:task_shefa/group_task/group_screens/high_priority_screen.dart';
 import 'package:task_shefa/group_task/group_screens/medium_preiority_screen.dart';
+import 'package:task_shefa/group_task/group_screens/widgets/header_icon_button_widget.dart';
+import 'package:task_shefa/group_task/group_screens/widgets/overview_card_widget.dart';
 import 'package:task_shefa/group_task/group_service/group_service.dart';
 import 'package:task_shefa/setting/screens/setting_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
@@ -12,14 +14,14 @@ import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
 import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 
-class GroubScreen extends StatefulWidget {
-  const GroubScreen({super.key});
+class GroupScreen extends StatefulWidget {
+  const GroupScreen({super.key});
 
   @override
-  State<GroubScreen> createState() => _GroubScreenState();
+  State<GroupScreen> createState() => _GroupScreenState();
 }
 
-class _GroubScreenState extends State<GroubScreen> {
+class _GroupScreenState extends State<GroupScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
@@ -462,84 +464,6 @@ class _GroubScreenState extends State<GroubScreen> {
     );
   }
 
-  Widget _statChip(String label, String value, Color color) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(99),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 6,
-            height: 6,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '$value $label',
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color.withValues(alpha: 0.95),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildOverviewCard(List<TaskModel> tasks) {
-    final open = _openTaskCount(tasks);
-    final done = tasks.length - open;
-
-    return Container(
-      margin: const EdgeInsets.fromLTRB(GroupTaskUi.hPad, 4, GroupTaskUi.hPad, 16),
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [GroupTaskUi.primary, GroupTaskUi.primaryDark],
-        ),
-        borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
-        boxShadow: GroupTaskUi.cardShadow(GroupTaskUi.primary),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Your workspace',
-            style: TextStyle(
-              color: Colors.white70,
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            '${tasks.length} total tasks',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              _statChip('open', '$open', Colors.white),
-              const SizedBox(width: 8),
-              _statChip('done', '$done', const Color(0xFFB8C4FF)),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget buildPriorityCard({
     required String title,
@@ -955,12 +879,12 @@ class _GroubScreenState extends State<GroubScreen> {
                         ],
                       ),
                     ),
-                    _headerIconButton(
+                    HeaderIconButton(
                       icon: Icons.notifications_none_rounded,
                       onPressed: () {},
                     ),
                     const SizedBox(width: 8),
-                    _headerIconButton(
+                    HeaderIconButton(
                       icon: Icons.settings_outlined,
                       onPressed: () {
                         Navigator.push(
@@ -981,7 +905,7 @@ class _GroubScreenState extends State<GroubScreen> {
               stream: _taskStream,
               builder: (context, snapshot) {
                 final tasks = snapshot.data ?? [];
-                return _buildOverviewCard(tasks);
+                return OverviewCardWidget(tasks: tasks,);
               },
             ),
           ),
@@ -1071,22 +995,4 @@ class _GroubScreenState extends State<GroubScreen> {
     );
   }
 
-  Widget _headerIconButton({
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    return Material(
-      color: GroupTaskUi.background,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onPressed,
-        borderRadius: BorderRadius.circular(14),
-        child: SizedBox(
-          width: 44,
-          height: 44,
-          child: Icon(icon, color: GroupTaskUi.textPrimary, size: 22),
-        ),
-      ),
-    );
-  }
 }
