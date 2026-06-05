@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
@@ -85,13 +86,16 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
               // 🔹 TOP CARD
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                padding: EdgeInsets.all(12),
-                width: double.infinity,
-                height: 120,
+                margin: const EdgeInsets.fromLTRB(GroupTaskUi.hPad, 4, GroupTaskUi.hPad, 16),
+                padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(10),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [GroupTaskUi.primary, GroupTaskUi.primaryDark],
+                  ),
+                  borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+                  boxShadow: GroupTaskUi.cardShadow(GroupTaskUi.primary),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -148,19 +152,24 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         width: 45,
                         margin: EdgeInsets.symmetric(horizontal: 6),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? Colors.deepPurple
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+                          color: isSelected ? GroupTaskUi.primary : Colors.white,
+                          borderRadius: BorderRadius.circular(10),
+
                         ),
+
                         child: Center(
                           child: Text(
                             days[index].day.toString(),
+
                             style: TextStyle(
+                              fontSize: 20,
                               color: isSelected
                                   ? Colors.white
                                   : Colors.black,
                             ),
+                            textAlign: TextAlign.center,
+
+
                           ),
                         ),
                       ),
@@ -203,8 +212,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.deepPurple,
-                      child: Column(
+                      color: GroupTaskUi.primary,
+                        child: Column(
                         children: [
                           Text('Start Time',
                               style: TextStyle(color: Colors.white)),
@@ -223,8 +232,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.deepPurple,
-                      child: Column(
+                      color: GroupTaskUi.primary,
+                        child: Column(
                         children: [
                           Text('End Time',
                               style: TextStyle(color: Colors.white)),
@@ -294,7 +303,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueGrey,
+                      color: Colors.blueAccent,
                       child: Column(
                         children: [
                           Text('Priority',
@@ -345,7 +354,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueGrey,
+                      color: Colors.blueAccent,
                       child: Column(
                         children: [
                           Text('Alert',
@@ -364,7 +373,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 50),
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: Colors.blueAccent,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

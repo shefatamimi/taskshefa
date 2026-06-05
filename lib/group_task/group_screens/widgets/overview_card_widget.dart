@@ -3,7 +3,7 @@ import 'package:task_shefa/group_task/group_screens/widgets/state_chip_widget.da
 
 import '../../../task/task_model/task_model.dart';
 import '../group_task_ui.dart';
-
+// ui of overview card
 class OverviewCardWidget extends StatelessWidget{
   final List<TaskModel> tasks;
   const OverviewCardWidget({super.key, required this.tasks});
@@ -11,6 +11,7 @@ class OverviewCardWidget extends StatelessWidget{
   int openTaskCount() =>
       tasks.where((t) => !t.isCompleted).length;
   int doneTaskCount() => tasks.length - openTaskCount();
+
   @override
   Widget build(BuildContext context) {
     final open = openTaskCount();

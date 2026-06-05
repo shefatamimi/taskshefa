@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/users/models/user_models.dart';
 import 'package:task_shefa/users/service/user_service.dart';
 
@@ -96,6 +97,7 @@ class _EditProfilState extends State<EditProfil> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          backgroundColor: Colors.green,
           content: Text(
             'Profile updated successfully',
           ),
@@ -106,12 +108,60 @@ class _EditProfilState extends State<EditProfil> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          backgroundColor: Colors.red,
           content: Text(
             'Failed to update profile',
           ),
         ),
       );
     }
+  }
+  Widget sectionTitle(String title) {
+    return Padding(
+      padding:
+      const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+
+      child: Text(
+        '$title',
+
+        style: const TextStyle(
+          fontSize: 17,
+          color:
+          GroupTaskUi.primaryDark,
+          fontWeight:
+          FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  Widget textFieldProfil({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    bool obscureText = false,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        validator: validator,
+        decoration: InputDecoration(
+          hintText: hint,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          suffixIcon: Icon(
+            icon,
+            color: GroupTaskUi.primaryDark,
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -138,186 +188,70 @@ class _EditProfilState extends State<EditProfil> {
                 heightFactor: 1.5,
 
                 child: CircleAvatar(
+                  backgroundColor: GroupTaskUi.background,
 
                   radius: 80,
                  child:  Icon(
                     Icons.person,
                     size: 120,
-                    color: Colors.blueGrey,
+                    color: GroupTaskUi.primary
                           )
 
                 ),
               ),
 
 
-              const Padding(
-                padding:
-                EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-
-                child: Text(
-                  'Email',
-
-                  style: TextStyle(
-                    fontSize: 17,
-                    color:
-                    Colors.blueGrey,
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-              ),
+             sectionTitle('Email'),
 
               const SizedBox(height: 5),
 
-              Padding(
-                padding:
-                const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-
-                child: TextFormField(
-                  controller:
-                  _emailController,
-
-                  validator:
-                      (value) {
-                    if (value!
-                        .isEmpty) {
-                      return 'Please enter your email';
-                    }
-
-                    return null;
-                  },
-
-                  decoration:
-                  InputDecoration(
-                    border:
-                    OutlineInputBorder(
-                      borderRadius:
-                      BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-
-                    suffixIcon:
-                    const Icon(
-                      Icons.edit,
-                      color:
-                      Colors.blueGrey,
-                    ),
+              textFieldProfil(
+                controller: _emailController,
+                icon: Icons.edit,
+                hint: 'Enter your email',
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                }
                   ),
-                ),
-              ),
 
               const SizedBox(height: 20),
 
-              const Padding(
-                padding:
-                EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-
-                child: Text(
-                  'Password',
-
-                  style: TextStyle(
-                    fontSize: 17,
-                    color:
-                    Colors.blueGrey,
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-              ),
+              sectionTitle('Password'),
 
               const SizedBox(height: 5),
-
-              Padding(
-                padding:
-                const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-
-                child: TextField(
-                  controller:
-                  _passwordController,
-
-                  obscureText:
-                  true,
-
-                  decoration:
-                  InputDecoration(
-                    border:
-                    OutlineInputBorder(
-                      borderRadius:
-                      BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-                  ),
-                ),
+              textFieldProfil(
+                controller: _passwordController,
+                icon: Icons.lock,
+                hint: 'Enter your password',
+                obscureText: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter your password';
+                  }
+                },
               ),
+
+
 
               const SizedBox(height: 20),
 
-              const Padding(
-                padding:
-                EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
+              sectionTitle('Confirm Password'),
 
-                child: Text(
-                  'Confirm Password',
-
-                  style: TextStyle(
-                    fontSize: 17,
-                    color:
-                    Colors.blueGrey,
-                    fontWeight:
-                    FontWeight.bold,
-                  ),
-                ),
-              ),
 
               const SizedBox(height: 5),
 
-              Padding(
-                padding:
-                const EdgeInsets.symmetric(
-                  horizontal: 10,
-                ),
-
-                child:
-                TextFormField(
-                  controller:
-                  _confirmPasswordController,
-
-                  validator:
-                      (value) {
-                    if (value!
-                        .isEmpty) {
-                      return 'Please enter your password';
-                    }
-
-                    return null;
-                  },
-
-                  obscureText:
-                  true,
-
-                  decoration:
-                  InputDecoration(
-                    border:
-                    OutlineInputBorder(
-                      borderRadius:
-                      BorderRadius.circular(
-                        10,
-                      ),
-                    ),
-                  ),
-                ),
+              textFieldProfil(
+                controller: _confirmPasswordController,
+                icon: Icons.lock,
+                hint: 'Confirm your password',
+                obscureText: true,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please confirm your password';
+                  }
+                },
               ),
 
               const SizedBox(height: 40),
@@ -343,9 +277,7 @@ class _EditProfilState extends State<EditProfil> {
                     decoration:
                     BoxDecoration(
                       color:
-                      Colors
-                          .blueGrey,
-
+                      GroupTaskUi.primaryDark,
                       borderRadius:
                       BorderRadius.circular(
                         20,

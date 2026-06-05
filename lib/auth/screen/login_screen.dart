@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:task_shefa/auth/screen/register_screen.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 
 import '../service/auth_service.dart';
 import 'home_screen.dart';
@@ -54,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                       children: [
                         const SizedBox(height:10),
-                        const Icon(Icons.checklist, size: 120,color: Colors.blueGrey,),
+                        const Icon(Icons.checklist, size: 120,color:GroupTaskUi.primary,),
                         const SizedBox(height:15),
                         const Text('Welcome Back!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                         const SizedBox(height: 5,),
@@ -119,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Padding(
                           padding: EdgeInsets.only(left: 215,top: 7),
                           child: InkWell(child: Text('Forgot Password?',
-                              style: TextStyle(color: Colors.blueGrey, fontSize: 12, fontWeight: FontWeight.bold))
+                              style: TextStyle(color: GroupTaskUi.primary, fontSize: 12, fontWeight: FontWeight.bold))
                           ),
 
                         ),
@@ -136,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             style: TextStyle(fontSize: 37, fontWeight: FontWeight.bold)),
                             style: ElevatedButton.styleFrom(
                               minimumSize:  Size(250, 30),
-                              backgroundColor: Colors.blueGrey,
+                              backgroundColor: GroupTaskUi.primary,
                               foregroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
 
@@ -199,7 +200,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onTap: (){
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=> const RegesterScreen()));
                               },
-                              child: Text('Sign Up', style: TextStyle(color: Colors.blueGrey, fontWeight: FontWeight.bold),),
+                              child: Text('Sign Up', style: TextStyle(color: GroupTaskUi.primary, fontWeight: FontWeight.bold),),
                             )
                           ],)
 

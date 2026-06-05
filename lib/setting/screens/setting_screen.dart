@@ -1,8 +1,11 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:task_shefa/auth/screen/login_screen.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/setting/screens/about_app_screen.dart';
 import 'package:task_shefa/setting/screens/backup_tasks_screen.dart';
+import 'package:task_shefa/setting/screens/export_tasks.dart';
+import 'package:task_shefa/setting/widget_setting/widget_container.dart';
 
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
@@ -40,12 +43,34 @@ class _SettingScreenState extends State<SettingScreen> {
 
     });
   }
+  Future<void>deletAllTasks() async {
+    final shouldDelete = await showDeleteTaskDialog(context, 'Task');
+    if (shouldDelete == true) {
+      taskService.deleteAllTasks();
+    }
+
+  }
+
 
   @override
   void initState() {
     super.initState();
     loadUser();
 
+  }
+
+  Widget sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Text(
+        title,
+        style: const TextStyle(
+          fontSize: 15,
+          color: GroupTaskUi.primary,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
   }
 
 
@@ -112,634 +137,95 @@ class _SettingScreenState extends State<SettingScreen> {
               ),
 
               SizedBox(height: 20,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('Account', style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold
-                ),),
-              ),
+              sectionTitle('Account'),
               SizedBox(height: 10,),
               Center(
-                child: InkWell(
-                  onTap: () {
+                  child: WidgetContainer(title: 'Profile',
+                      subtitle: 'View and edit your profile',
+                      icon: Icons.person, onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => EditProfil()),
                     );
+                      })),
 
 
-                  },
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.person, size: 30,),
+              SizedBox(height: 20,),
+              sectionTitle('Appearance'),
+              SizedBox(height: 10,),
+              Center(
+                child: WidgetContainer(title: 'Dark Mode',
+                    subtitle: 'Enable dark mode', icon: Icons.dark_mode,
+                    onTap: () {
 
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('Profile', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
+                    })
+              ),
+              SizedBox(height: 10,),
+              Center(
+                child: WidgetContainer(title: 'Theme Color',
+                    subtitle: 'Choose a theme color',
+                    icon: Icons.color_lens, onTap: () {}),
+              ),
+              SizedBox(height: 10,),
+              Center(
+                child: WidgetContainer(title: 'Font Size',
+                    subtitle: 'Adjust font size', icon: Icons.text_fields, onTap: () {
 
-
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('View and Edit your profile',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                  ),),
-                              ),
-
-                            ]
-
-
-                        ),
-                        SizedBox(width: 137,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
+                    }),
               ),
 
               SizedBox(height: 20,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('Appearence', style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold
-                ),),
+              sectionTitle('Tasks'),
+              SizedBox(height: 10,),
+              Center(
+                child: WidgetContainer(title: 'Completed Tasks',
+                    subtitle: 'View completed tasks', icon: Icons.check_circle_outline, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CompletedTasks()),
+                  );
+                }),
               ),
               SizedBox(height: 10,),
               Center(
-                child: Container(
-                  height: 50,
-                  width: 350,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-
-                      ]
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 10,),
-                      Icon(Icons.dark_mode, size: 30,),
-
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10,),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text('Dark Mode', style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-                              ),),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text(
-                                'Enable dark mode', style: TextStyle(
-                                fontSize: 10,
-                              ),),
-                            ),
-
-                          ]
-
-
-                      ),
-                      SizedBox(width: 130,),
-
-
-                    ],
-                  ),
-
-
-                ),
+                child: WidgetContainer(title: 'Export tasks',
+                    subtitle: 'Export your tasks to a file', icon: Icons.upload_file_sharp, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ExportTasksScreen()),
+                  );
+                    })
+              ),
+              SizedBox(height: 10,),
+              sectionTitle('Backup & Storage'),
+              SizedBox(height: 10,),
+              Center(
+                child: WidgetContainer(title: 'Backup Tasks',
+                    subtitle: 'Backup your tasks', icon: Icons.backup_outlined, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BackupScreen()),
+                  );
+                }),
               ),
               SizedBox(height: 10,),
               Center(
-                child: Container(
-                  height: 50,
-                  width: 350,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-
-                      ]
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 10,),
-                      Icon(Icons.color_lens, size: 30,),
-
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10,),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text('Theme Color', style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-
-
-                              ),),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text(
-                                'Choose a theme color', style: TextStyle(
-                                fontSize: 10,
-                              ),),
-                            ),
-
-                          ]
-
-
-                      ),
-                      SizedBox(width: 157,),
-                      Icon(Icons.arrow_forward_ios, size: 20),
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(height: 10,),
-              Center(
-                child: Container(
-                  height: 50,
-                  width: 350,
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.5),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset: Offset(0, 3),
-                        ),
-
-                      ]
-                  ),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 10,),
-                      Icon(Icons.text_fields, size: 30,),
-
-                      Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height: 10,),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text('Font Size', style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.bold,
-
-
-                              ),),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 8),
-                              child: Text(
-                                'Adjust the font size', style: TextStyle(
-                                fontSize: 10,
-                              ),),
-                            ),
-
-                          ]
-
-
-                      ),
-                      SizedBox(width: 170,),
-                      Icon(Icons.arrow_forward_ios, size: 20),
-                    ],
-                  ),
-                ),
-              ),
-
-              SizedBox(height: 20,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('Tasks', style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold
-                ),),
-              ),
-              SizedBox(height: 10,),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CompletedTasks()),
-                    );
-
-
-                  },
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.check_circle_outline, size: 30,),
-
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text(
-                                  'Completed Tasks', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text(
-                                  'View and manage completed tasks', style: TextStyle(
-                                  fontSize: 10,
-                                ),),
-                              ),
-                            ]
-                        ),
-                        SizedBox(width: 100,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10,),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    showDialog(context: context, builder: (context) {
-                      return AlertDialog(
-                        title: Text('Sort Tasks'),
-                        content: Text('Select a sorting option:'),
-                        actions: [
-                          TextButton(
-                            onPressed: () async {
-
-
-                              Navigator.pop(context,true);
-                            },
-                            child: Text('sort by date'),
-                          ),
-                          TextButton(
-                            onPressed: () async {
-
-
-                              Navigator.pop(context,true);
-                            },
-                            child: Text('sort A-z')
-                          ),
-                        ],
-                      );
-                    },
-
-                    );
-                  },
-
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.filter_list, size: 30,),
-
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('Tasks Sorting', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('Newest first', style: TextStyle(
-                                  fontSize: 10,
-                                ),),
-                              ),
-                            ]
-                        ),
-                        SizedBox(width: 160,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('Data & Storage', style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold
-                ),),
-              ),
-              SizedBox(height: 10,),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => BackupScreen()),
-                    );
-
-                  },
-
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.cloud_circle, size: 30,),
-
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text(
-                                  'Backup & Restore', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text(
-                                  'Backup your task', style: TextStyle(
-                                  fontSize: 10,
-                                ),),
-                              ),
-                            ]
-                        ),
-                        SizedBox(width: 130,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(height: 10,),
-              Center(
-                child: InkWell(
-                  onTap: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Delete All task'),
-                          content: Text(
-                              'Are you sure you want to delete all notes?'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pop(context);
-                              },
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () async {
-                                await taskService.deleteAllTasks();
-                                Navigator.pop(context);
-
-                              },
-                              child: Text('Delete'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.delete, size: 30,),
-
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text(
-                                  'Delete All Task', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('Permanently delete all tasks',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                  ),),
-                              ),
-                            ]
-                        ),
-                        SizedBox(width: 120,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
+                child: WidgetContainer(title: 'Delete All Tasks',
+                    subtitle: 'permanently delete all tasks', icon: Icons.delete_outline, onTap: () {
+                  deletAllTasks();
+                }),
               ),
               SizedBox(height: 10,), SizedBox(height: 10,),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Text('Other', style: TextStyle(
-                    fontSize: 15,
-                    color: Colors.blueGrey,
-                    fontWeight: FontWeight.bold
-                ),),
-              ),
+              sectionTitle('Other'),
               SizedBox(height: 10,),
               Center(
-                child: InkWell(
-                  onTap: () {
-                    Navigator.push
-                        (context,
-                      MaterialPageRoute(builder: (context) => AboutScreen()));
-
-                  },
-
-
-                  child: Container(
-                    height: 50,
-                    width: 350,
-                    decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(10),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 3),
-                          ),
-
-                        ]
-                    ),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 10,),
-                        Icon(Icons.info_outline, size: 30,),
-
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 10,),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('About App', style: TextStyle(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.bold,
-                                ),),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8),
-                                child: Text('Learn more about the app',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                  ),),
-                              ),
-                            ]
-                        ),
-                        SizedBox(width: 132,),
-                        Icon(Icons.arrow_forward_ios, size: 20),
-                      ],
-                    ),
-                  ),
-                ),
+                child: WidgetContainer(title: 'About App',
+                    subtitle: 'Learn more about the app', icon: Icons.info_outline, onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AboutScreen()),
+                  );
+                }),
               ),
               SizedBox(height: 10,),
               Center(
@@ -748,67 +234,15 @@ class _SettingScreenState extends State<SettingScreen> {
 
                   },
 
-                  child: InkWell(
-                    onTap: () async {
-                      await FirebaseAuth.instance.signOut();
-
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginScreen(),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      height: 50,
-                      width: 350,
-                      decoration: BoxDecoration(
-                          color: Colors.grey[200],
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: Offset(0, 3),
-                            ),
-
-                          ]
-                      ),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 10,),
-                          Icon(Icons.logout, size: 30,),
-
-                          Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(height: 10,),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8),
-                                  child: Text(
-                                    'Logout', style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold,
-                                  ),),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8),
-                                  child: Text(
-                                    'Log out of your account', style: TextStyle(
-                                    fontSize: 10,
-                                  ),),
-                                ),
-                              ]
-                          ),
-                          SizedBox(width: 143,),
-                          Icon(Icons.arrow_forward_ios, size: 20),
-                        ],
-                      ),
-                    ),
-                  ),
+                  child: WidgetContainer(title: 'Logout',
+                      subtitle: 'Log out of your account',
+                  icon: Icons.logout, onTap: () {
+                    auth.signOut();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()),
+                    );
+                })
                 ),
               ),
 

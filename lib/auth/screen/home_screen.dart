@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:task_shefa/auth/screen/navigator_screen.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,7 +54,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 50),
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor: GroupTaskUi.primary,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),

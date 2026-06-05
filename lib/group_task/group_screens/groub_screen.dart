@@ -13,7 +13,7 @@ import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
 import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
-//Hello world
+
 class GroupScreen extends StatefulWidget {
   const GroupScreen({super.key});
 
@@ -96,10 +96,11 @@ class _GroupScreenState extends State<GroupScreen> {
     _descriptionController.clear();
   }
 
+// فتح نافذه اضافه او تعديل قروب
   Future<void> _showGroupFormDialog({
-    required String title,
-    required String actionLabel,
-    required Future<void> Function() onSubmit,
+    required String title,// new group   or edit group
+    required String actionLabel, // create or save
+    required Future<void> Function() onSubmit,//
   }) async {
     await showDialog(
       context: context,
@@ -127,7 +128,8 @@ class _GroupScreenState extends State<GroupScreen> {
                 const SizedBox(height: 20),
                 TextField(
                   controller: _titleController,
-                  decoration: groupTaskFieldDecoration('Group name', Icons.folder_outlined),
+                  decoration: groupTaskFieldDecoration(
+                      'Group name', Icons.folder_outlined),
                   textCapitalization: TextCapitalization.sentences,
                 ),
                 const SizedBox(height: 14),
@@ -192,6 +194,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
+  // اختصينا بنافذه اضافه القروب وحطينا التفاصيل تبعها
   void showAddGroupDialog() {
     _clearDialogFields();
     _showGroupFormDialog(
@@ -216,6 +219,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
+  // اختصينا بنافذه بتعجيل القروب وحطينا التفاصيل تبعه
   void _showEditGroupDialog(GroupModel group) {
     _titleController.text = group.title;
     _descriptionController.text = group.description;
@@ -241,7 +245,7 @@ class _GroupScreenState extends State<GroupScreen> {
       },
     );
   }
-
+// نافذه حذف القروب
   Future<void> _confirmDeleteGroup(GroupModel group) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -322,6 +326,7 @@ class _GroupScreenState extends State<GroupScreen> {
     }
   }
 
+// العناوين
   Widget _sectionHeader({
     required String title,
     required String subtitle,
@@ -397,6 +402,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
+// هي الicon تم استعملها بال  all task container and customize groub
   Widget _iconBadge({
     required IconData icon,
     required List<Color> gradient,
@@ -464,7 +470,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
-
+// ui of  all group container priority card
   Widget buildPriorityCard({
     required String title,
     required String description,
@@ -571,7 +577,7 @@ class _GroupScreenState extends State<GroupScreen> {
       ),
     );
   }
-
+// ui of customize group container
   Widget _buildGroupCard(GroupModel group, List<TaskModel> allTasks) {
     final groupTasks = _tasksForGroup(allTasks, group.id);
     final completionPercent =
@@ -670,7 +676,7 @@ class _GroupScreenState extends State<GroupScreen> {
       ),
     );
   }
-
+ // icon edit + delete
   Widget _groupActionButton({
     required IconData icon,
     required Color color,
@@ -689,7 +695,7 @@ class _GroupScreenState extends State<GroupScreen> {
       ),
     );
   }
-
+// ui of all task container
   Widget _buildTotalTasksCard() {
     return _modernCard(
       accent: GroupTaskUi.primary,
@@ -769,6 +775,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
+// ui of empty groups hint of customize group
   Widget _buildEmptyGroupsHint() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: GroupTaskUi.hPad, vertical: 8),
@@ -810,6 +817,7 @@ class _GroupScreenState extends State<GroupScreen> {
     );
   }
 
+  // ui of scaffold
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.paddingOf(context).top;
@@ -900,6 +908,7 @@ class _GroupScreenState extends State<GroupScreen> {
               ),
             ),
           ),
+          // ui of overview card container =>OverviewCardWidget
           SliverToBoxAdapter(
             child: StreamBuilder<List<TaskModel>>(
               stream: _taskStream,
@@ -915,6 +924,7 @@ class _GroupScreenState extends State<GroupScreen> {
               subtitle: 'Focus on what matters most',
             ),
           ),
+
           SliverToBoxAdapter(
             child: buildPriorityCard(
               title: 'High priority',
@@ -957,6 +967,7 @@ class _GroupScreenState extends State<GroupScreen> {
               subtitle: 'Custom folders for your tasks',
             ),
           ),
+          //  build customize group container
           StreamBuilder<List<GroupModel>>(
             stream: _groupsStream,
             builder: (context, groupSnapshot) {
@@ -982,12 +993,14 @@ class _GroupScreenState extends State<GroupScreen> {
               );
             },
           ),
+
           SliverToBoxAdapter(
             child: _sectionHeader(
               title: 'Quick access',
               subtitle: 'See every task in one list',
             ),
           ),
+          // build all task container
           SliverToBoxAdapter(child: _buildTotalTasksCard()),
           const SliverToBoxAdapter(child: SizedBox(height: 100)),
         ],

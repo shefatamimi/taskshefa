@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -8,9 +9,9 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text("About App"),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: GroupTaskUi.primaryDark,
         foregroundColor: Colors.white,
-        centerTitle: true,
+
       ),
 
       body: Padding(
@@ -22,10 +23,11 @@ class AboutScreen extends StatelessWidget {
             Center(
               child: Column(
                 children: [
+                  SizedBox(height: 60,),
                   Icon(
                     Icons.task_alt,
                     size: 80,
-                    color: Colors.blueGrey,
+                    color: GroupTaskUi.primaryDark,
                   ),
                   SizedBox(height: 10),
                   Text(

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_service/task_service.dart';
 import 'package:task_shefa/users/models/user_models.dart';
@@ -30,11 +31,14 @@ class _CompletedTasksState extends State<CompletedTasks> {
     });
   }
   Future<void> deleteTask(String taskId) async {
-    await taskService.deleteTask(taskId);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Task deleted successfully')),
-    );
-    Navigator.pop(context);
+    final shouldDelete = await showDeleteTaskDialog(context, 'Task');
+    if (shouldDelete == true) {
+      taskService.deleteTask(taskId);
+      setState(() {
+        taskStream = taskService.getTasks(userId);
+      });
+    }
+
   }
   Future<void> changestatues(TaskModel task) async {
     final updatedTask = TaskModel(
@@ -127,56 +131,26 @@ class _CompletedTasksState extends State<CompletedTasks> {
                   return Center(child: Text('Error: ${snapshot.error}'));
                 }
 
-                return ListView.separated(
+                return ListView.builder(
                   itemCount: tasks.length,
-                  separatorBuilder: (context, index) => const Divider(),
                   itemBuilder: (context, index) {
                     final task = tasks[index];
-
-
-                    return Column(
-                      children: [
-                        SizedBox(height: 20,),
-                        Text(task.dueDate.toString()),
-                        ListTile(
-                          title: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(task.title),
-                          ),
-                          subtitle: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(task.description),
-                          ),
-
-                        ),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              IconButton(onPressed: (){
-                                changestatues(task);
-                              }, icon: Icon(
-                                task.isCompleted
-                                    ? Icons.check_circle
-                                    : Icons.check_circle_outline,
-                                color:
-                                task.isCompleted
-                                    ? Colors.green
-                                    : Colors.grey,
-                                size: 30,
-                              ),
-
-                              ),
-
-                              IconButton(onPressed: (){
-                                deleteTask(task.id!);
-
-                              }, icon: Icon(Icons.delete)),
-
-                            ]
-                        )
-                      ],
-
+                    return GroupTaskListTile(
+                      task: task,
+                      accent: GroupTaskUi.primary,
+                      onComplete: () {
+                        changestatues(task);
+                      },
+                      onDelete: () {
+                        deleteTask(task.id!);
+                      },
                     );
+
+
+
+
+
+
                   },
                 );
               },

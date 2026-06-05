@@ -354,12 +354,17 @@ class GroupTaskListTile extends StatelessWidget {
     required this.accent,
     required this.onComplete,
     required this.onDelete,
+    this.onUpdated,
+
   });
 
   final TaskModel task;
   final Color accent;
   final VoidCallback onComplete;
   final VoidCallback onDelete;
+  final VoidCallback? onUpdated;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -459,6 +464,17 @@ class GroupTaskListTile extends StatelessWidget {
                   ),
                   tooltip: 'Delete task',
                 ),
+                const SizedBox(width: 8),
+                if (onUpdated != null)
+                IconButton(
+                  onPressed: onUpdated,
+                  icon: Icon(
+                    Icons.edit,
+                    color: GroupTaskUi.high.withValues(alpha: 0.85),
+                  ),
+                  tooltip: 'Update task',
+                ),
+
               ],
             ),
           ),
@@ -577,11 +593,83 @@ Future<bool?> showDeleteTaskDialog(BuildContext context, String taskTitle) {
                       ),
                     ),
                     child: const Text('Delete'),
+
                   ),
                 ),
+
+
+
               ],
             ),
           ],
+        ),
+      ),
+    ),
+  );
+}
+
+Future<bool?> showUpdateTaskDialog(BuildContext context, String taskTitle) {
+  return showDialog<bool>(
+    context: context,
+    builder: (dialogContext) => Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column( children: [
+          CircleAvatar(
+          radius: 70,
+          child: Icon(
+            Icons.drive_file_rename_outline,
+            size: 70,
+          )
+      ),
+
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Title',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Description',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Due Date',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Priority',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        SizedBox(height: 16),
+        TextFormField(
+          decoration: InputDecoration(
+            labelText: 'Alert',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () {
+            // Handle save button press
+          },
+          child: Text('Save'),
+        ),
+        SizedBox(height: 16),
+
+        ]
         ),
       ),
     ),
