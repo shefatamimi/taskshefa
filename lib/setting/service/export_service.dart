@@ -6,9 +6,9 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:task_shefa/task/task_model/task_model.dart';
 
 Future<void> generatePdf(List<TaskModel> tasks) async {
-  final pdf = pw.Document();
+  final pdf = pw.Document();// انشاء ملف فارغ
 
-  pdf.addPage(
+  pdf.addPage(// اضاف
     pw.Page(
       build: (pw.Context context) {
         return pw.Column(
@@ -19,6 +19,10 @@ Future<void> generatePdf(List<TaskModel> tasks) async {
               style: pw.TextStyle(
                 fontSize: 24,
                 fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blue,
+                decoration: pw.TextDecoration.underline,
+                decorationStyle: pw.TextDecorationStyle.double,
+                decorationColor: PdfColors.blue,
               ),
             ),
 
@@ -41,7 +45,7 @@ Future<void> generatePdf(List<TaskModel> tasks) async {
                         fontWeight: pw.FontWeight.bold,
                       ),
                     ),
-                    pw.SizedBox(height: 5),
+                 pw.SizedBox(height: 5),
                     pw.Text(
                       "Description: ${task.description}",
                       style: const pw.TextStyle(fontSize: 14),
@@ -59,16 +63,6 @@ Future<void> generatePdf(List<TaskModel> tasks) async {
                     pw.SizedBox(height: 5),
                     pw.Text(
                       "Status: ${task.isCompleted ? "Completed" : "Incomplete"}",
-                      style: const pw.TextStyle(fontSize: 14),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Text(
-                      "Group ID: ${task.groupId}",
-                      style: const pw.TextStyle(fontSize: 14),
-                    ),
-                    pw.SizedBox(height: 5),
-                    pw.Text(
-                      "User ID: ${task.userId}",
                       style: const pw.TextStyle(fontSize: 14),
                     ),
                     pw.SizedBox(height: 5),

@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 
 import '../service/auth_service.dart';
 
@@ -44,7 +45,7 @@ class _RegesterScreenState extends State<RegesterScreen> {
     return Scaffold(
       appBar: AppBar(
         foregroundColor: Colors.white,
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: GroupTaskUi.primary,
         title: const Text(
           'Register',
           style: TextStyle(color: Colors.white),
@@ -64,7 +65,7 @@ class _RegesterScreenState extends State<RegesterScreen> {
                   const Icon(
                     Icons.person_add_alt_1_rounded,
                     size: 120,
-                    color: Colors.blueGrey,
+                    color:GroupTaskUi.primary,
                   ),
         
                   const SizedBox(height: 10),
@@ -79,7 +80,7 @@ class _RegesterScreenState extends State<RegesterScreen> {
                     style: TextStyle(fontSize: 20,
         
                         fontWeight: FontWeight.bold,
-                        color: Colors.blueGrey),
+                        color: GroupTaskUi.primary),
                   ),
         
                   const SizedBox(height: 30),
@@ -175,7 +176,7 @@ class _RegesterScreenState extends State<RegesterScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       minimumSize: const Size(250, 50),
-                      backgroundColor: Colors.blueGrey,
+                      backgroundColor:GroupTaskUi.primary,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -205,7 +206,7 @@ class _RegesterScreenState extends State<RegesterScreen> {
                         child: const Text(
                           "Login",
                           style: TextStyle(
-                            color: Colors.blueGrey,
+                            color:GroupTaskUi.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

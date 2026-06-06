@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:task_shefa/group_task/group_screens/group_task_ui.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
+
 import 'package:task_shefa/task/task_service/task_service.dart';
 
 class AddTaskScreen extends StatefulWidget {
@@ -86,16 +87,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
               // 🔹 TOP CARD
               Container(
-                margin: const EdgeInsets.fromLTRB(GroupTaskUi.hPad, 4, GroupTaskUi.hPad, 16),
-                padding: const EdgeInsets.all(22),
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                padding: EdgeInsets.all(12),
+                width: double.infinity,
+                height: 120,
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [GroupTaskUi.primary, GroupTaskUi.primaryDark],
-                  ),
-                  borderRadius: BorderRadius.circular(GroupTaskUi.radiusLg),
-                  boxShadow: GroupTaskUi.cardShadow(GroupTaskUi.primary),
+                  color: GroupTaskUi.primary,
+                  borderRadius: BorderRadius.circular(30),
+
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 5,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -110,7 +117,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         Text(
                           'Date: ${widget.date.day}/${widget.date.month}/${widget.date.year}',
                           style: TextStyle(color: Colors.white,
-                            fontSize: 15
+                              fontSize: 15
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -118,7 +125,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         Text(
                           'Time: ${widget.date.hour}:${widget.date.minute}',
                           style: TextStyle(color: Colors.white,
-                            fontSize: 15
+                              fontSize: 15
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,
@@ -152,24 +159,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         width: 45,
                         margin: EdgeInsets.symmetric(horizontal: 6),
                         decoration: BoxDecoration(
-                          color: isSelected ? GroupTaskUi.primary : Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-
+                          color: isSelected
+                              ? Colors.deepPurple
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
                         ),
-
                         child: Center(
                           child: Text(
                             days[index].day.toString(),
-
                             style: TextStyle(
-                              fontSize: 20,
                               color: isSelected
                                   ? Colors.white
                                   : Colors.black,
                             ),
-                            textAlign: TextAlign.center,
-
-
                           ),
                         ),
                       ),
@@ -185,7 +187,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 controller: _titleController,
                 decoration: InputDecoration(
                   labelText: 'Title',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+
+                  ),
                 ),
               ),
 
@@ -197,7 +202,9 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: 'Description',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
                 ),
               ),
 
@@ -208,12 +215,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   GestureDetector(
+
                     onTap: () => pickTime(true),
                     child: Container(
+
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: GroupTaskUi.primary,
-                        child: Column(
+                      color: Colors.deepPurple,
+                      child: Column(
                         children: [
                           Text('Start Time',
                               style: TextStyle(color: Colors.white)),
@@ -232,8 +241,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: GroupTaskUi.primary,
-                        child: Column(
+                      color: Colors.deepPurple,
+                      child: Column(
                         children: [
                           Text('End Time',
                               style: TextStyle(color: Colors.white)),
@@ -303,7 +312,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueAccent,
+                      color: Colors.blueGrey,
                       child: Column(
                         children: [
                           Text('Priority',
@@ -354,7 +363,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueAccent,
+                      color: Colors.blueGrey,
                       child: Column(
                         children: [
                           Text('Alert',
@@ -373,7 +382,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(250, 50),
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Colors.blueGrey,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -384,14 +393,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   await addTask();
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MyTasks()),
+                    MaterialPageRoute(builder: (context) => MyTasks()),
                   );
                 },
                 child: Text('Create Task',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,)
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,)
 
                 ),
               ),
