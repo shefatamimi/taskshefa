@@ -5,7 +5,12 @@ class TaskService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<void> addTask(TaskModel task) async {
-    await _firestore.collection('tasks').add(task.toMap());
+    try {
+      await _firestore.collection('tasks').add(task.toMap());
+      print("Task added successfully");
+    } catch (e) {
+      print("ERROR adding task: $e");
+    }
   }
 
   Future<void> updateTask(String id, TaskModel task) async {
@@ -52,9 +57,14 @@ class TaskService {
   }
 
   Future<void> deleteAllTasks() async {
-    final tasks = await _firestore.collection('tasks').get();
-    for (final task in tasks.docs) {
-      await _firestore.collection('tasks').doc(task.id).delete();
+    final snapshot = await _firestore.collection('tasks').get();
+
+    final batch = _firestore.batch();
+
+    for (final doc in snapshot.docs) {
+      batch.delete(doc.reference);
     }
+
+    await batch.commit();
   }
   }

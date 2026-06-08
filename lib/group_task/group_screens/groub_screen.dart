@@ -8,6 +8,7 @@ import 'package:task_shefa/group_task/group_screens/medium_preiority_screen.dart
 import 'package:task_shefa/group_task/group_screens/widgets/header_icon_button_widget.dart';
 import 'package:task_shefa/group_task/group_screens/widgets/overview_card_widget.dart';
 import 'package:task_shefa/group_task/group_service/group_service.dart';
+import 'package:task_shefa/setting/screens/notification_screen.dart';
 import 'package:task_shefa/setting/screens/setting_screen.dart';
 import 'package:task_shefa/task/task_model/task_model.dart';
 import 'package:task_shefa/task/task_screen/my_tasks_screen.dart';
@@ -889,7 +890,17 @@ class _GroupScreenState extends State<GroupScreen> {
                     ),
                     HeaderIconButton(
                       icon: Icons.notifications_none_rounded,
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NotificationScreen(),
+                          ),
+                        );
+
+                        
+
+                      },
                     ),
                     const SizedBox(width: 8),
                     HeaderIconButton(

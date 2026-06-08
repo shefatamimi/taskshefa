@@ -41,6 +41,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       alert: alertValue,
       groupId: 'general',
       isCompleted: false,
+      startTime: startTime == null
+          ? null
+          : "${startTime!.hour.toString().padLeft(2, '0')}:${startTime!.minute.toString().padLeft(2, '0')}",
+
     );
 
     await taskService.addTask(task);
@@ -81,18 +85,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(15),
           child: Column(
             children: [
 
               // 🔹 TOP CARD
+              SizedBox(height: 10,),
               Container(
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                margin: EdgeInsets.symmetric(horizontal: 2, vertical: 12),
                 padding: EdgeInsets.all(12),
-                width: double.infinity,
+                width: 350,
                 height: 120,
+
                 decoration: BoxDecoration(
-                  color: GroupTaskUi.primary,
+                  color: Colors.white70,
                   borderRadius: BorderRadius.circular(30),
 
                   boxShadow: [
@@ -112,20 +118,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       children: [
                         Text('Today',
                             style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold)),
+                              color: GroupTaskUi.primary,
+                                fontSize: 30, fontWeight: FontWeight.bold)),
                         SizedBox(height: 5),
                         Text(
                           'Date: ${widget.date.day}/${widget.date.month}/${widget.date.year}',
-                          style: TextStyle(color: Colors.white,
-                              fontSize: 15
+                          style: TextStyle(  color: Colors.blueGrey,
+                              fontSize: 17
                           ),
                           textAlign: TextAlign.center,
                         ),
                         SizedBox(height: 5),
                         Text(
                           'Time: ${widget.date.hour}:${widget.date.minute}',
-                          style: TextStyle(color: Colors.white,
-                              fontSize: 15
+                          style: TextStyle(  color: Colors.blueGrey,
+                              fontSize: 17
                           ),
                           textAlign: TextAlign.center,
                           maxLines: 2,
@@ -134,7 +141,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         ),
                       ],
                     ),
-                    Icon(Icons.calendar_today, color: Colors.white, size: 40),
+                    Icon(Icons.calendar_today, color: Colors.blueGrey, size: 50),
                   ],
                 ),
               ),
@@ -159,18 +166,29 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                         width: 45,
                         margin: EdgeInsets.symmetric(horizontal: 6),
                         decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.transparent
+                                : Colors.grey,
+                            width: 1,
+                            style: BorderStyle.solid,
+
+                          ),
                           color: isSelected
-                              ? Colors.deepPurple
+                              ? GroupTaskUi.primary
                               : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
+
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Center(
                           child: Text(
                             days[index].day.toString(),
                             style: TextStyle(
+                              fontSize: 20,
                               color: isSelected
                                   ? Colors.white
                                   : Colors.black,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -180,7 +198,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
 
-              SizedBox(height: 10),
+              SizedBox(height: 20),
 
               // 🔹 TITLE
               TextField(
@@ -218,10 +236,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
                     onTap: () => pickTime(true),
                     child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: GroupTaskUi.primary,
+
+                      ),
 
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.deepPurple,
+
                       child: Column(
                         children: [
                           Text('Start Time',
@@ -236,12 +259,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                   ),
+
                   GestureDetector(
                     onTap: () => pickTime(false),
                     child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: GroupTaskUi.primary,
+                      ),
+
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.deepPurple,
+
                       child: Column(
                         children: [
                           Text('End Time',
@@ -310,9 +339,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       );
                     },
                     child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        color: Colors.blueGrey,
+                      ),
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueGrey,
+
                       child: Column(
                         children: [
                           Text('Priority',
@@ -363,7 +396,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Container(
                       width: 150,
                       padding: EdgeInsets.all(12),
-                      color: Colors.blueGrey,
+                     decoration: BoxDecoration(
+                       color: Colors.blueGrey,
+                       borderRadius: BorderRadius.circular(20),
+                     ),
                       child: Column(
                         children: [
                           Text('Alert',
@@ -385,16 +421,19 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   backgroundColor: Colors.blueGrey,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(20
+                    ),
                     side: BorderSide(color: Colors.black38),
                   ),
                 ),
-                onPressed: () async {
-                  await addTask();
+                onPressed: () {
+                   addTask();
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => MyTasks()),
+
                   );
+
                 },
                 child: Text('Create Task',
                     style: TextStyle(
