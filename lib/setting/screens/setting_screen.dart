@@ -158,6 +158,7 @@ class _SettingScreenState extends State<SettingScreen> {
                     subtitle: 'Enable dark mode', icon: Icons.dark_mode,
                     onTap: () {
 
+
                     })
               ),
               SizedBox(height: 10,),

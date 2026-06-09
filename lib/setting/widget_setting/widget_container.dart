@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:task_shefa/setting/service/provider_darkmode.dart';
+import 'package:task_shefa/setting/service/provider_fontsize.dart';
+import 'package:task_shefa/setting/service/provider_theme_color.dart';
 class WidgetContainer extends StatelessWidget {
   final String title;
   final String subtitle;
   final IconData icon;
   final VoidCallback? onTap;
+  final Icon? iconData;
 
 
   const WidgetContainer
@@ -11,7 +16,9 @@ class WidgetContainer extends StatelessWidget {
     required this.title,
     required this.subtitle,
     required this.icon,
-    this.onTap});
+    this.onTap,
+    this.iconData,
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -74,7 +81,34 @@ class WidgetContainer extends StatelessWidget {
 
               ),
                Spacer(),
+              if(title != 'Dark Mode')
+                if (title != 'Theme Color')
+                  if(title != 'Font Size')
               Icon(Icons.arrow_forward_ios, size: 20),
+              SizedBox(width: 10,),
+              if(title == 'Dark Mode')
+              Switch(
+                value: context.watch<ThemeProvider>().isDarkMode,
+                onChanged: (value) {
+                  context.read<ThemeProvider>().toggleTheme();
+                },
+              ),
+              if(title == 'Theme Color')
+              Switch(
+                value: context.watch<ProviderThemeColor>().color == Colors.green,
+                onChanged: (value) {
+                  context.read<ProviderThemeColor>().toggleColor();
+                },
+              ),
+              if (title == 'Font Size')
+               IconButton(onPressed: () {
+                 context.read<FontSizeController>().increment();
+               }, icon: Icon(Icons.add_box, size: 25,))
+              ,
+              if (title == 'Font Size')
+                IconButton(onPressed: () {
+                  context.read<FontSizeController>().decrement();
+                }, icon: Icon(Icons.indeterminate_check_box, size: 25,))
             ],
           ),
         ),

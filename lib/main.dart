@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 import 'package:task_shefa/auth/screen/login_screen.dart';
 import 'package:task_shefa/setting/service/notificat_service.dart';
+import 'package:task_shefa/setting/service/provider_darkmode.dart';
+import 'package:task_shefa/setting/service/provider_fontsize.dart';
+import 'package:task_shefa/setting/service/provider_theme_color.dart';
 import 'firebase_options.dart';
 
-void main() async{
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,);
-  WidgetsFlutterBinding.ensureInitialized();
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   await NotificationService.init();
 
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => ProviderThemeColor()),
+        ChangeNotifierProvider(create: (_) => FontSizeController(
+
+        )),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -22,42 +37,62 @@ class MyApp extends StatelessWidget {
   // This widgets is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: .fromSeed(seedColor: Colors.blue),
-      ),
-      home: LoginScreen()
+
+    return Consumer3<ThemeProvider, ProviderThemeColor, FontSizeController>(
+      builder: (context, themeProvider, colorProvider, fontProvider, child) {
+
+        return MaterialApp(
+          theme: ThemeData(
+            brightness: Brightness.light,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: colorProvider.color,
+            ),
+
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(
+                fontSize: fontProvider.value,
+              ),
+            ),
+          ),
+
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            colorScheme: ColorScheme.fromSeed(
+              seedColor: colorProvider.color,
+              brightness: Brightness.dark,
+            ),
+
+            textTheme: TextTheme(
+              bodyMedium: TextStyle(
+                fontSize: fontProvider.value,
+              ),
+            ),
+          ),
+
+          themeMode: themeProvider.isDarkMode
+              ? ThemeMode.dark
+              : ThemeMode.light,
+
+
+          home: LoginScreen(),
+        );
+      },
     );
+
+        }
+
+
+
+
+
   }
-}
+
+
+
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
 
-  // This widgets is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widgets) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 

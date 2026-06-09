@@ -42,6 +42,8 @@ dependencies:
   open_file: ^3.5.10
   flutter_local_notifications: ^19.4.0
   timezone: ^0.10.1
+  provider: ^6.1.2
+  color_theme_provider: 1.1.1
 
 
 
