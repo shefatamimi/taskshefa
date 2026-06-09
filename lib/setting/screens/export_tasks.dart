@@ -279,36 +279,26 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                     ),
 
                       onPressed: () async {
-
+                        try {
                           final tasks = await taskService.getTasks(userId).first;
 
-                          List<TaskModel> filteredTasks = [];
-
-                          if (allTasks) {
-                            filteredTasks = tasks;
-                          } else if (completedTasks) {
-                            filteredTasks = tasks.where((t) => t.isCompleted == true).toList();
-                          } else if (incompleteTasks) {
-                            filteredTasks = tasks.where((t) => t.isCompleted == false).toList();
-                          } else {
-                            filteredTasks = tasks;
-                          }
-
-                          if (dueDate) {
-                            filteredTasks = filteredTasks.where((t) => t.dueDate != null).toList();
-                          }
-                          await generatePdf(filteredTasks);
-
-
-
-
-
-
+                          await generatePdf(tasks);
 
                           ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("PDF exported successfully")),
+                            const SnackBar(
+                              content: Text("PDF exported successfully"),
+                            ),
                           );
-                                              },
+                        } catch (e) {
+                          print("ERROR: $e");
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Error: $e"),
+                            ),
+                          );
+                        }
+                      },
 
 
 
