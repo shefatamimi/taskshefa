@@ -64,8 +64,15 @@ class _GroupScreenState extends State<GroupScreen> {
 
   double _priorityProgress(List<TaskModel> tasks, String priority) {
     if (tasks.isEmpty) return 0;
-    return _tasksForPriority(tasks, priority).length / tasks.length;
+    final completed = tasks
+        .where((task) => task.priority == priority && task.isCompleted)
+        .length;
+
+ final total = tasks.where((task) => task.priority == priority).length;
+ if (total == 0) return 0;
+    return completed / total;
   }
+
 
   int _priorityPercent(List<TaskModel> tasks, String priority) {
     if (tasks.isEmpty) return 0;
