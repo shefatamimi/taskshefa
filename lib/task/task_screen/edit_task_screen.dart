@@ -110,7 +110,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 children: [
                   SizedBox(height: 50,),
                   CircleAvatar(
-                      backgroundColor: Colors.white54,
+                      backgroundColor: GroupTaskUi.background,
                       radius: 80,
                       child: Icon(
                         Icons.drive_file_rename_outline,

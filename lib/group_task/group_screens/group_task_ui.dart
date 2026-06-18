@@ -552,7 +552,8 @@ Future<bool?> showDeleteTaskDialog(BuildContext context, String taskTitle) {
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w700,
-                color: GroupTaskUi.textPrimary,
+                color: Colors.blueAccent,
+
               ),
             ),
             const SizedBox(height: 8),

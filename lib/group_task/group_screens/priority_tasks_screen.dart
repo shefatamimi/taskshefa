@@ -140,7 +140,7 @@ class _PriorityTasksScreenState extends State<PriorityTasksScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GroupTaskUi.background,
+
       body: StreamBuilder<List<TaskModel>>(
         stream: _taskStream,
         builder: (context, snapshot) {

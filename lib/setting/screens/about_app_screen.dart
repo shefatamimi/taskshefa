@@ -60,7 +60,7 @@ class AboutScreen extends StatelessWidget {
 
             Text(
               "TaskShefa is a simple task management application that helps users organize their daily tasks, track progress, and manage priorities efficiently.",
-              style: TextStyle(fontSize: 14, color: Colors.black87),
+              style: TextStyle(fontSize: 14, ),
             ),
 
             SizedBox(height: 20),

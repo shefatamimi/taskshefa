@@ -135,16 +135,31 @@ class _GroupScreenState extends State<GroupScreen> {
                 ),
                 const SizedBox(height: 20),
                 TextField(
+                  style: const TextStyle(
+                    color: Colors.black,
+                    height: 1.4,
+                  ),
                   controller: _titleController,
                   decoration: groupTaskFieldDecoration(
+
                       'Group name', Icons.folder_outlined),
                   textCapitalization: TextCapitalization.sentences,
+
+
                 ),
                 const SizedBox(height: 14),
                 TextField(
+
+                  style: const TextStyle(
+                    color: Colors.black,
+                    height: 1.4,
+                  ),
+
                   controller: _descriptionController,
                   decoration: groupTaskFieldDecoration(
+
                     'Description (optional)',
+
                     Icons.notes_outlined,
                   ),
                   maxLines: 2,
@@ -232,6 +247,7 @@ class _GroupScreenState extends State<GroupScreen> {
     _titleController.text = group.title;
     _descriptionController.text = group.description;
     _showGroupFormDialog(
+
       title: 'Edit group',
       actionLabel: 'Save',
       onSubmit: () async {
@@ -355,7 +371,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w700,
-                    color: GroupTaskUi.textPrimary,
+
                     letterSpacing: -0.4,
                   ),
                 ),
@@ -364,7 +380,7 @@ class _GroupScreenState extends State<GroupScreen> {
                   subtitle,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: GroupTaskUi.textSecondary,
+
                     height: 1.35,
                   ),
                 ),
@@ -625,6 +641,7 @@ class _GroupScreenState extends State<GroupScreen> {
                         fontSize: 17,
                         fontWeight: FontWeight.w700,
                         color: GroupTaskUi.textPrimary,
+
                       ),
                     ),
                     if (group.description.isNotEmpty) ...[
@@ -831,7 +848,7 @@ class _GroupScreenState extends State<GroupScreen> {
     final topPadding = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
-      backgroundColor: GroupTaskUi.background,
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: showAddGroupDialog,
         elevation: 4,
@@ -848,7 +865,7 @@ class _GroupScreenState extends State<GroupScreen> {
           SliverToBoxAdapter(
             child: Container(
               decoration: const BoxDecoration(
-                color: GroupTaskUi.surface,
+
                 borderRadius: BorderRadius.vertical(
                   bottom: Radius.circular(28),
                 ),
@@ -877,7 +894,7 @@ class _GroupScreenState extends State<GroupScreen> {
                             'Dashboard',
                             style: TextStyle(
                               fontSize: 13,
-                              color: GroupTaskUi.textSecondary,
+
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -887,7 +904,7 @@ class _GroupScreenState extends State<GroupScreen> {
                             style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w800,
-                              color: GroupTaskUi.textPrimary,
+
                               letterSpacing: -0.8,
                               height: 1.1,
                             ),

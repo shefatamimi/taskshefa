@@ -119,10 +119,14 @@ class _MyTasksState extends State<MyTasks> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Tasks'),
-        backgroundColor: GroupTaskUi.background,
+        title: const Text('My Tasks', style: TextStyle(
+
+        ),
+        ),
+
 
         leading: IconButton(
+     
           onPressed: () {
             Navigator.push(
                 context,
@@ -138,7 +142,7 @@ class _MyTasksState extends State<MyTasks> {
       ),
 
 
-      backgroundColor: GroupTaskUi.background,
+
       body: Column(
         children: [
           const SizedBox(height: 20),
@@ -153,6 +157,7 @@ class _MyTasksState extends State<MyTasks> {
                   style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
+                    color: GroupTaskUi.primaryDark,
                   ),
                 ),
                 InkWell(

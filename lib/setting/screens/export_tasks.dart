@@ -94,7 +94,9 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
         child: Row(
           children: [
             SizedBox(width: 10,),
-            Icon(icon, size: 30,),
+            Icon(icon, size: 30,
+              color: GroupTaskUi.primaryDark,
+            ),
 
             Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,6 +108,7 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                     child: Text('$title', style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
+                      color: Colors.black87
                     ),),
                   ),
                   Padding(
@@ -113,6 +116,7 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                         horizontal: 8),
                     child: Text('$subtitle', style: TextStyle(
                       fontSize: 10,
+                      color: Colors.black87
                     ),),
                   ),
                 ]
@@ -120,11 +124,14 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
             SizedBox(width: 110,),
             Spacer(),
             Radio<String>(
+                activeColor: GroupTaskUi.primaryDark,
+                fillColor: MaterialStateProperty.all(GroupTaskUi.primaryDark),
                 value: value,
                 groupValue: selectedFormat,
                 onChanged: (value) {
                   setState(() {
                     selectedFormat = value!;
+
                   });
             }),
 
@@ -163,6 +170,7 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.bold,
+            color: Colors.black87
           ),
         ),
       ],
@@ -196,8 +204,9 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                 SizedBox(height: 10,),
                 Center(
                   child: Text('choose the format you want to export your tasks to', style: TextStyle(
+
                       fontSize: 12,
-                      color: Colors.black54,
+
                       height: 1.5
                   ),),
                 ),
@@ -269,7 +278,9 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                 SizedBox(height: 20,),
                 Center(
                   child: ElevatedButton(
+
                     style: ElevatedButton.styleFrom(
+                      backgroundColor:Colors.white,
                       minimumSize: Size(250, 50),
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -300,11 +311,10 @@ class _ExportTasksScreenState extends State<ExportTasksScreen> {
                         }
                       },
 
-
-
                     child: Text('Export',style: TextStyle(
                     color:GroupTaskUi.primaryDark,
                     fontWeight: FontWeight.bold,
+
 
                     fontSize: 30,
                   )

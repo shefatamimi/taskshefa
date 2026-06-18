@@ -66,7 +66,8 @@ class _BackupScreenState extends State<BackupScreen> {
               Spacer(),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Center(child: Icon(Icons.arrow_forward_ios,size: 20)),
+              child: Center(child: Icon(Icons.arrow_forward_ios,size: 20,
+                color: Colors.black87,)),
             ),
 
 

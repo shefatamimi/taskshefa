@@ -68,12 +68,16 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.w700,
-                    color: GroupTaskUi.textPrimary,
+                    color:Colors.black,
                     letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 20),
                 TextField(
+                  style: const TextStyle(
+                    color: Colors.black,
+                    height: 1.4,
+                  ),
                   controller: _titleController,
                   decoration: groupTaskFieldDecoration(
                     'Task title',
@@ -83,6 +87,12 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
                 ),
                 const SizedBox(height: 14),
                 TextField(
+                  style: const TextStyle(
+                    color: Colors.black,
+                    height: 1.4,
+                  ),
+
+
                   controller: _descriptionController,
                   decoration: groupTaskFieldDecoration(
                     'Description (optional)',
@@ -215,7 +225,7 @@ class _CustimizeGroupState extends State<CustimizeGroup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GroupTaskUi.background,
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddTaskDialog,
         elevation: 4,

@@ -52,7 +52,7 @@ Future<void> generatePdf(List<TaskModel> tasks) async {
                     ),
                     pw.SizedBox(height: 5),
                     pw.Text(
-                      "Due Date: ${task.dueDate}",
+                      "Due Date: ${task.dueDate.day}",
                       style: const pw.TextStyle(fontSize: 14),
                     ),
                     pw.SizedBox(height: 5),

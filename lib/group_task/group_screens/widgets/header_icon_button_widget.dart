@@ -11,7 +11,7 @@ class HeaderIconButton extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: GroupTaskUi.background,
+
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
         onTap: onPressed,
@@ -19,7 +19,7 @@ class HeaderIconButton extends StatelessWidget{
         child: SizedBox(
           width: 44,
           height: 44,
-          child: Icon(icon, color: GroupTaskUi.textPrimary, size: 22),
+          child: Icon(icon, size: 22),
         ),
       ),
     );

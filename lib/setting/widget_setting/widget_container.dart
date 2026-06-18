@@ -50,7 +50,10 @@ class WidgetContainer extends StatelessWidget {
           child: Row(
             children: [
               SizedBox(width: 10,),
-              Icon(icon, size: 30,),
+              Icon(icon, size: 30,
+                color: Colors.black87,
+              ),
+
 
 
               Column(
@@ -63,6 +66,7 @@ class WidgetContainer extends StatelessWidget {
                       child: Text(title, style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black87,
 
 
                       ),),
@@ -73,6 +77,8 @@ class WidgetContainer extends StatelessWidget {
                       child: Text(subtitle,
                         style: TextStyle(
                           fontSize: 10,
+
+                          color: Colors.black87,
                         ),),
                     ),
 
@@ -84,7 +90,9 @@ class WidgetContainer extends StatelessWidget {
               if(title != 'Dark Mode')
                 if (title != 'Theme Color')
                   if(title != 'Font Size')
-              Icon(Icons.arrow_forward_ios, size: 20),
+              Icon(Icons.arrow_forward_ios, size: 20,
+                color: Colors.black87,
+              ),
               SizedBox(width: 10,),
               if(title == 'Dark Mode')
               Switch(
@@ -103,12 +111,15 @@ class WidgetContainer extends StatelessWidget {
               if (title == 'Font Size')
                IconButton(onPressed: () {
                  context.read<FontSizeController>().increment();
-               }, icon: Icon(Icons.add_box, size: 25,))
+               }, icon: Icon(Icons.add_box, size: 25,
+                 color: Colors.black38,
+               ))
               ,
               if (title == 'Font Size')
                 IconButton(onPressed: () {
                   context.read<FontSizeController>().decrement();
-                }, icon: Icon(Icons.indeterminate_check_box, size: 25,))
+                }, icon: Icon(Icons.indeterminate_check_box, size: 25,
+                  color: Colors.black38,))
             ],
           ),
         ),
